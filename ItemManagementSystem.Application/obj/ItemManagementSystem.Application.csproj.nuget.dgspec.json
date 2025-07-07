@@ -26,11 +26,11 @@
           "net7.0": {
             "targetAlias": "net7.0",
             "projectReferences": {
-              "d:\\ItemManagementSystem\\ItemManagementSystem.Domain\\ItemManagementSystem.Domain.csproj": {
-                "projectPath": "d:\\ItemManagementSystem\\ItemManagementSystem.Domain\\ItemManagementSystem.Domain.csproj"
+              "D:\\ItemManagementSystem\\ItemManagementSystem.Domain\\ItemManagementSystem.Domain.csproj": {
+                "projectPath": "D:\\ItemManagementSystem\\ItemManagementSystem.Domain\\ItemManagementSystem.Domain.csproj"
               },
-              "d:\\ItemManagementSystem\\ItemManagementSystem.Infrastructure\\ItemManagementSystem.Infrastructure.csproj": {
-                "projectPath": "d:\\ItemManagementSystem\\ItemManagementSystem.Infrastructure\\ItemManagementSystem.Infrastructure.csproj"
+              "D:\\ItemManagementSystem\\ItemManagementSystem.Infrastructure\\ItemManagementSystem.Infrastructure.csproj": {
+                "projectPath": "D:\\ItemManagementSystem\\ItemManagementSystem.Infrastructure\\ItemManagementSystem.Infrastructure.csproj"
               }
             }
           }
@@ -45,13 +45,41 @@
         "net7.0": {
           "targetAlias": "net7.0",
           "dependencies": {
+            "AutoMapper": {
+              "target": "Package",
+              "version": "[12.0.1, )"
+            },
+            "AutoMapper.Extensions.Microsoft.DependencyInjection": {
+              "target": "Package",
+              "version": "[12.0.1, )"
+            },
             "BCrypt.Net-Next": {
               "target": "Package",
               "version": "[4.0.3, )"
             },
+            "MailKit": {
+              "target": "Package",
+              "version": "[4.13.0, )"
+            },
+            "Microsoft.AspNetCore.Authentication.JwtBearer": {
+              "target": "Package",
+              "version": "[7.0.4, )"
+            },
             "Microsoft.AspNetCore.Http": {
               "target": "Package",
               "version": "[2.3.0, )"
+            },
+            "Microsoft.IdentityModel.Tokens": {
+              "target": "Package",
+              "version": "[8.12.1, )"
+            },
+            "MimeKit": {
+              "target": "Package",
+              "version": "[4.13.0, )"
+            },
+            "System.IdentityModel.Tokens.Jwt": {
+              "target": "Package",
+              "version": "[8.12.1, )"
             }
           },
           "imports": [
@@ -74,14 +102,14 @@
         }
       }
     },
-    "d:\\ItemManagementSystem\\ItemManagementSystem.Domain\\ItemManagementSystem.Domain.csproj": {
+    "D:\\ItemManagementSystem\\ItemManagementSystem.Domain\\ItemManagementSystem.Domain.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "d:\\ItemManagementSystem\\ItemManagementSystem.Domain\\ItemManagementSystem.Domain.csproj",
+        "projectUniqueName": "D:\\ItemManagementSystem\\ItemManagementSystem.Domain\\ItemManagementSystem.Domain.csproj",
         "projectName": "ItemManagementSystem.Domain",
-        "projectPath": "d:\\ItemManagementSystem\\ItemManagementSystem.Domain\\ItemManagementSystem.Domain.csproj",
+        "projectPath": "D:\\ItemManagementSystem\\ItemManagementSystem.Domain\\ItemManagementSystem.Domain.csproj",
         "packagesPath": "C:\\Users\\pca88\\.nuget\\packages\\",
-        "outputPath": "d:\\ItemManagementSystem\\ItemManagementSystem.Domain\\obj\\",
+        "outputPath": "D:\\ItemManagementSystem\\ItemManagementSystem.Domain\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\pca88\\AppData\\Roaming\\NuGet\\NuGet.Config"
@@ -153,14 +181,14 @@
         }
       }
     },
-    "d:\\ItemManagementSystem\\ItemManagementSystem.Infrastructure\\ItemManagementSystem.Infrastructure.csproj": {
+    "D:\\ItemManagementSystem\\ItemManagementSystem.Infrastructure\\ItemManagementSystem.Infrastructure.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "d:\\ItemManagementSystem\\ItemManagementSystem.Infrastructure\\ItemManagementSystem.Infrastructure.csproj",
+        "projectUniqueName": "D:\\ItemManagementSystem\\ItemManagementSystem.Infrastructure\\ItemManagementSystem.Infrastructure.csproj",
         "projectName": "ItemManagementSystem.Infrastructure",
-        "projectPath": "d:\\ItemManagementSystem\\ItemManagementSystem.Infrastructure\\ItemManagementSystem.Infrastructure.csproj",
+        "projectPath": "D:\\ItemManagementSystem\\ItemManagementSystem.Infrastructure\\ItemManagementSystem.Infrastructure.csproj",
         "packagesPath": "C:\\Users\\pca88\\.nuget\\packages\\",
-        "outputPath": "d:\\ItemManagementSystem\\ItemManagementSystem.Infrastructure\\obj\\",
+        "outputPath": "D:\\ItemManagementSystem\\ItemManagementSystem.Infrastructure\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\pca88\\AppData\\Roaming\\NuGet\\NuGet.Config"
@@ -175,8 +203,8 @@
           "net7.0": {
             "targetAlias": "net7.0",
             "projectReferences": {
-              "d:\\ItemManagementSystem\\ItemManagementSystem.Domain\\ItemManagementSystem.Domain.csproj": {
-                "projectPath": "d:\\ItemManagementSystem\\ItemManagementSystem.Domain\\ItemManagementSystem.Domain.csproj"
+              "D:\\ItemManagementSystem\\ItemManagementSystem.Domain\\ItemManagementSystem.Domain.csproj": {
+                "projectPath": "D:\\ItemManagementSystem\\ItemManagementSystem.Domain\\ItemManagementSystem.Domain.csproj"
               }
             }
           }

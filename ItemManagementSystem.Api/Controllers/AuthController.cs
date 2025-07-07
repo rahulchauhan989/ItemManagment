@@ -1,4 +1,5 @@
 using ItemManagementSystem.Application.Interface;
+using ItemManagementSystem.Domain.Constants;
 using ItemManagementSystem.Domain.Dto;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,32 +10,41 @@ namespace ItemManagementSystem.Api.Controllers
     public class AuthController : ControllerBase
     {
         private readonly IAuthService _authService;
+        private readonly IEmailSender _emailSender;
 
-        public AuthController(IAuthService authService)
+        public AuthController(IAuthService authService, IEmailSender emailSender)
         {
             _authService = authService;
+            _emailSender = emailSender;
         }
 
         [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] LoginDto dto)
+        public async Task<ActionResult<ApiResponse>> Login([FromBody] LoginDto dto)
         {
             var token = await _authService.LoginAsync(dto.Email, dto.Password);
-            return Ok(new { token });
+            return new ApiResponse(true, 200, token, AppMessages.LoginSuccess);
         }
 
         [HttpPost("forgot-password")]
-        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDto dto)
+        public async Task<ActionResult<ApiResponse>> ForgotPassword([FromBody] ForgotPasswordDto dto)
         {
-            await _authService.ForgotPasswordAsync(dto.Email);
-            return Ok();
+            var token = _authService.GenerateJwtToken(dto.Email);
+
+            string resetLink = Url.Action("ResetPassword", "Auth", new { token = Uri.EscapeDataString(token) }, Request.Scheme)!;
+
+            string emailBody = $"Click <a href='{resetLink}'>here</a> to reset your password.";
+
+            await _emailSender.SendEmailAsync(dto.Email, "Reset Password", emailBody);
+
+            return new ApiResponse(true, 200, null, AppMessages.ResetLinkSent);
         }
 
         [HttpPost("reset-password")]
-        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDto dto)
+        public async Task<ActionResult<ApiResponse>> ResetPassword([FromBody] ResetPasswordDto dto)
         {
-            await _authService.ResetPasswordAsync(dto.Token, dto.NewPassword);
-            return Ok();
+             await _authService.ResetPasswordAsync(dto.Token, dto.NewPassword);
+
+            return new ApiResponse(true, 200, null, AppMessages.PasswordResetSuccess);
         }
     }
-
 }

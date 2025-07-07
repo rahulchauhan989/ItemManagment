@@ -1,42 +1,67 @@
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
-using System;
 using System.Net;
 using System.Text.Json;
-using System.Threading.Tasks;
+using ItemManagementSystem.Domain.Dto;
+using ItemManagementSystem.Domain.Exception;
+using Microsoft.AspNetCore.Http;
 
-namespace ItemManagementSystem.Application.Implementation
+namespace ItemManagementSystem.Api.Middleware
 {
-    public class ExceptionMiddleware
+    public class ExceptionHandlerMiddleware
     {
         private readonly RequestDelegate _next;
-        private readonly ILogger<ExceptionMiddleware> _logger;
 
-        public ExceptionMiddleware(RequestDelegate next, ILogger<ExceptionMiddleware> logger)
+        public ExceptionHandlerMiddleware(RequestDelegate next)
         {
             _next = next;
-            _logger = logger;
         }
 
-        public async Task InvokeAsync(HttpContext httpContext)
+        public async Task Invoke(HttpContext context)
         {
             try
             {
-                await _next(httpContext);
+                 var ipAddress = context.Connection.RemoteIpAddress?.ToString();
+                 Console.WriteLine("IpAdress : " + ipAddress);
+                 await _next(context);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, ex.Message);
-                await HandleExceptionAsync(httpContext, ex);
+                await HandleExceptionMessageAsync(context, ex).ConfigureAwait(false);
             }
         }
 
-        private static Task HandleExceptionAsync(HttpContext context, Exception exception)
+        private static Task HandleExceptionMessageAsync(HttpContext context, Exception exception)
         {
-            context.Response.ContentType = "application/json";
-            context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+            var innerException = exception.InnerException;
+            var error = $"Exception is thrown ({exception.GetType()}): {exception.Message}\n";
 
-            var result = JsonSerializer.Serialize(new { error = exception.Message });
+            var errorMessages = new List<string>();
+            if (innerException != null)
+            {
+                error += $"Inner Exception ({innerException.GetType()}) : {innerException.Message}";
+                errorMessages.Add(innerException.Message);
+            }
+
+            Console.WriteLine("inner Exception:" + error);
+
+            HttpStatusCode statusCode = exception switch
+            {
+                CustomException => HttpStatusCode.BadRequest,
+                NullObjectException => HttpStatusCode.NotFound,
+                AlreadyExistsException => HttpStatusCode.Conflict,
+                _ => HttpStatusCode.InternalServerError
+            };
+
+            context.Response.ContentType = "application/json";
+            context.Response.StatusCode = (int)statusCode;
+
+            var result = JsonSerializer.Serialize(new ApiResponse()
+            {
+                StatusCode =(int) statusCode,
+                Message = exception.Message,
+                IsSuccess = false,
+                Data = null,
+            });
+
             return context.Response.WriteAsync(result);
         }
     }

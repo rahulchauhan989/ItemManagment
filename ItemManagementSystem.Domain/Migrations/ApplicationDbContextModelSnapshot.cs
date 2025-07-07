@@ -37,7 +37,6 @@ namespace ItemManagementSystem.Domain.Migrations
                         .HasColumnType("integer");
 
                     b.Property<string>("Description")
-                        .IsRequired()
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
 
@@ -86,8 +85,7 @@ namespace ItemManagementSystem.Domain.Migrations
                     b.Property<int?>("ModifiedBy")
                         .HasColumnType("integer");
 
-                    b.Property<int?>("PurchaseId")
-                        .IsRequired()
+                    b.Property<int>("PurchaseId")
                         .HasColumnType("integer");
 
                     b.Property<string>("RequestNumber")
@@ -134,7 +132,6 @@ namespace ItemManagementSystem.Domain.Migrations
                         .HasColumnType("integer");
 
                     b.Property<string>("Description")
-                        .IsRequired()
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
 
@@ -186,7 +183,7 @@ namespace ItemManagementSystem.Domain.Migrations
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<int>("UserId")
+                    b.Property<int?>("UserId")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
@@ -337,7 +334,6 @@ namespace ItemManagementSystem.Domain.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime?>("CreatedAt")
-                        .IsRequired()
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<int?>("CreatedBy")
@@ -375,7 +371,6 @@ namespace ItemManagementSystem.Domain.Migrations
                         .HasColumnType("boolean");
 
                     b.Property<DateTime?>("CreatedAt")
-                        .IsRequired()
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<int?>("CreatedBy")
@@ -508,9 +503,7 @@ namespace ItemManagementSystem.Domain.Migrations
 
                     b.HasOne("ItemManagementSystem.Domain.DataModels.User", "User")
                         .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("UserId");
 
                     b.Navigation("CreatedByUser");
 

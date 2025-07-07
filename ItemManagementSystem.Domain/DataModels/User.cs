@@ -9,13 +9,13 @@ public class User
     public int Id { get; set; }
 
     [Required, MaxLength(100)]
-    public string Name { get; set; }
+    public string Name { get; set; } = null!;
 
     [Required, MaxLength(255)]
-    public string Email { get; set; }
+    public string Email { get; set; } = null!;
 
     [Required]
-    public string Password { get; set; }
+    public string Password { get; set; } = null!;
 
     [ForeignKey("Role")]
     public int RoleId { get; set; }
@@ -23,8 +23,6 @@ public class User
 
     public bool Active { get; set; } = true;
 
-    // Auditable fields
-    [Required]
     public DateTime? CreatedAt { get; set; } = DateTime.UtcNow;
 
     public DateTime? UpdatedAt { get; set; }

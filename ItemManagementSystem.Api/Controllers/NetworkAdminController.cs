@@ -1,0 +1,181 @@
+using ItemManagementSystem.Application.Interface;
+using ItemManagementSystem.Domain.Dto;
+using ItemManagementSystem.Domain.Exception;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+
+namespace ItemManagementSystem.Api.Controllers
+{
+    [ApiController]
+    [Route("api/network-admin")]
+    [Authorize(Roles = "Admin")]
+    public class NetworkAdminController : ControllerBase
+    {
+        private readonly IItemTypeService _itemTypeService;
+        private readonly IItemModelService _itemModelService;
+        // private readonly IPurchaseRequestService _purchaseRequestService;
+        // private readonly IReturnRequestService _returnRequestService;
+
+        public NetworkAdminController(
+            IItemTypeService itemTypeService,
+            IItemModelService itemModelService
+            // IPurchaseRequestService purchaseRequestService,
+            // IReturnRequestService returnRequestService
+            )
+        {
+            _itemTypeService = itemTypeService;
+            _itemModelService = itemModelService;
+            // _purchaseRequestService = purchaseRequestService;
+            // _returnRequestService = returnRequestService;
+        }
+
+
+        [HttpPost("item-types")]
+        public async Task<ActionResult<ApiResponse>> CreateItemType([FromBody] ItemTypeDto dto)
+        {
+           string? token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+           int userId = _itemTypeService.ExtractUserIdFromToken(token); 
+            dto.createdBy= userId;
+            var result = await _itemTypeService.CreateAsync(dto);
+            return new ApiResponse(true, 201, result, "Item Type created successfully.");
+        }
+
+        [HttpGet("item-types/{id}")]
+        public async Task<IActionResult> GetItemType(int id)
+        {
+            var result = await _itemTypeService.GetByIdAsync(id);
+            if (result == null) throw new NullObjectException("Item Type not found.");
+            return Ok(result);
+        }
+
+        [HttpPut("item-types/{id}")]
+        public async Task<IActionResult> UpdateItemType(int id, [FromBody] ItemTypeDto dto)
+        {
+             string? token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+             int userId = _itemTypeService.ExtractUserIdFromToken(token); 
+            dto.createdBy= userId;
+            await _itemTypeService.UpdateAsync(id, dto);
+            return NoContent();
+        }
+
+        [HttpDelete("item-types/{id}")]
+        public async Task<IActionResult> DeleteItemType(int id)
+        {
+            await _itemTypeService.DeleteAsync(id);
+            return NoContent();
+        }
+
+        [HttpGet("item-types")]
+        public async Task<IActionResult> GetAllItemTypes()
+        {
+            var result = await _itemTypeService.GetAllAsync();
+            return Ok(result);
+        }
+
+        [HttpPost("item-models")]
+        public async Task<IActionResult> CreateItemModel([FromBody] ItemModelDto dto)
+        {
+            var result = await _itemModelService.CreateAsync(dto);
+            return CreatedAtAction(nameof(GetItemModel), new { id = result.Id }, result);
+        }
+
+        [HttpGet("item-models/{id}")]
+        public async Task<IActionResult> GetItemModel(int id)
+        {
+            var result = await _itemModelService.GetByIdAsync(id);
+            if (result == null) throw new NullObjectException("Item Model not found.");
+            return Ok(result);
+        }
+
+        [HttpPut("item-models/{id}")]
+        public async Task<IActionResult> UpdateItemModel(int id, [FromBody] ItemModelDto dto)
+        {
+            await _itemModelService.UpdateAsync(id, dto);
+            return NoContent();
+        }
+
+        [HttpDelete("item-models/{id}")]
+        public async Task<IActionResult> DeleteItemModel(int id)
+        {
+            await _itemModelService.DeleteAsync(id);
+            return NoContent();
+        }
+
+        [HttpGet("item-models")]
+        public async Task<IActionResult> GetAllItemModels()
+        {
+            var result = await _itemModelService.GetAllAsync();
+            return Ok(result);
+        }
+
+        // ------------------ PURCHASE REQUEST ------------------
+
+        // [HttpPost("purchase-requests")]
+        // public async Task<IActionResult> CreatePurchaseRequest([FromBody] PurchaseRequestDto dto)
+        // {
+        //     var result = await _purchaseRequestService.CreateAsync(dto);
+        //     return CreatedAtAction(nameof(GetPurchaseRequest), new { id = result.Id }, result);
+        // }
+
+        // [HttpGet("purchase-requests/{id}")]
+        // public async Task<IActionResult> GetPurchaseRequest(int id)
+        // {
+        //     var result = await _purchaseRequestService.GetByIdAsync(id);
+        //     if (result == null) throw new NullObjectException("Purchase request not found.");
+        //     return Ok(result);
+        // }
+
+        // [HttpGet("purchase-requests")]
+        // public async Task<IActionResult> ListPurchaseRequests([FromQuery] PurchaseRequestFilterDto filter)
+        // {
+        //     var result = await _purchaseRequestService.GetAllAsync(filter);
+        //     return Ok(result);
+        // }
+
+        // // ------------------ ITEM REQUEST MANAGEMENT ------------------
+
+        // [HttpGet("item-requests/pending")]
+        // public async Task<IActionResult> GetPendingItemRequests([FromQuery] ItemRequestFilterDto filter)
+        // {
+        //     var result = await _purchaseRequestService.GetPendingRequestsAsync(filter);
+        //     return Ok(result);
+        // }
+
+        // [HttpPost("item-requests/{id}/approve")]
+        // public async Task<IActionResult> ApproveItemRequest(int id, [FromBody] ApproveRequestDto dto)
+        // {
+        //     await _purchaseRequestService.ApproveRequestAsync(id, dto.Comment);
+        //     return Ok();
+        // }
+
+        // [HttpPost("item-requests/{id}/reject")]
+        // public async Task<IActionResult> RejectItemRequest(int id, [FromBody] RejectRequestDto dto)
+        // {
+        //     await _purchaseRequestService.RejectRequestAsync(id, dto.Comment);
+        //     return Ok();
+        // }
+
+        // // ------------------ RETURN REQUEST MANAGEMENT ------------------
+
+        // [HttpGet("return-requests/pending")]
+        // public async Task<IActionResult> GetPendingReturnRequests([FromQuery] ReturnRequestFilterDto filter)
+        // {
+        //     var result = await _returnRequestService.GetPendingRequestsAsync(filter);
+        //     return Ok(result);
+        // }
+
+        // [HttpPost("return-requests/{id}/approve")]
+        // public async Task<IActionResult> ApproveReturnRequest(int id, [FromBody] ApproveRequestDto dto)
+        // {
+        //     await _returnRequestService.ApproveRequestAsync(id, dto.Comment);
+        //     return Ok();
+        // }
+
+        // [HttpPost("return-requests/{id}/reject")]
+        // public async Task<IActionResult> RejectReturnRequest(int id, [FromBody] RejectRequestDto dto)
+        // {
+        //     await _returnRequestService.RejectRequestAsync(id, dto.Comment);
+        //     return Ok();
+        // }
+    }
+}
