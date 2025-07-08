@@ -19,6 +19,8 @@ public class ItemModel
     public ItemType ItemType { get; set; } = null!;
     public int Quantity { get; set; } = 0;
 
+    public bool IsDeleted { get; set; } = false;
+
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     public DateTime? UpdatedAt { get; set; }

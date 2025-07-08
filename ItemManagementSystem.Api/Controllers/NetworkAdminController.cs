@@ -1,4 +1,5 @@
 using ItemManagementSystem.Application.Interface;
+using ItemManagementSystem.Domain.Constants;
 using ItemManagementSystem.Domain.Dto;
 using ItemManagementSystem.Domain.Exception;
 using Microsoft.AspNetCore.Authorization;
@@ -33,79 +34,83 @@ namespace ItemManagementSystem.Api.Controllers
         [HttpPost("item-types")]
         public async Task<ActionResult<ApiResponse>> CreateItemType([FromBody] ItemTypeDto dto)
         {
-           string? token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
-           int userId = _itemTypeService.ExtractUserIdFromToken(token); 
-            dto.createdBy= userId;
+            string? token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            int userId = _itemTypeService.ExtractUserIdFromToken(token);
+            dto.createdBy = userId;
             var result = await _itemTypeService.CreateAsync(dto);
-            return new ApiResponse(true, 201, result, "Item Type created successfully.");
+            return new ApiResponse(true, 201, result, AppMessages.ItemTypeCreated);
         }
 
         [HttpGet("item-types/{id}")]
-        public async Task<IActionResult> GetItemType(int id)
+        public async Task<ActionResult<ApiResponse>> GetItemType(int id)
         {
             var result = await _itemTypeService.GetByIdAsync(id);
-            if (result == null) throw new NullObjectException("Item Type not found.");
-            return Ok(result);
+            return new ApiResponse(true, 200, result, AppMessages.ItemTypesRetrieved);
         }
 
         [HttpPut("item-types/{id}")]
-        public async Task<IActionResult> UpdateItemType(int id, [FromBody] ItemTypeDto dto)
+        public async Task<ActionResult<ApiResponse>> UpdateItemType(int id, [FromBody] ItemTypeDto dto)
         {
-             string? token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
-             int userId = _itemTypeService.ExtractUserIdFromToken(token); 
-            dto.createdBy= userId;
-            await _itemTypeService.UpdateAsync(id, dto);
-            return NoContent();
+            string? token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            int userId = _itemTypeService.ExtractUserIdFromToken(token);
+            dto.modifiedBy = userId;
+            var result = await _itemTypeService.UpdateAsync(id, dto);
+            return new ApiResponse(true, 204, result, AppMessages.ItemTypeUpdated);
         }
 
         [HttpDelete("item-types/{id}")]
-        public async Task<IActionResult> DeleteItemType(int id)
+        public async Task<ActionResult<ApiResponse>> DeleteItemType(int id)
         {
             await _itemTypeService.DeleteAsync(id);
-            return NoContent();
+            return new ApiResponse(true, 204, null, AppMessages.ItemTypeDeleted);
         }
 
         [HttpGet("item-types")]
-        public async Task<IActionResult> GetAllItemTypes()
+        public async Task<ActionResult<ApiResponse>> GetAllItemTypes()
         {
             var result = await _itemTypeService.GetAllAsync();
-            return Ok(result);
+            return new ApiResponse(true, 200, result, AppMessages.ItemTypesRetrieved);
         }
 
         [HttpPost("item-models")]
-        public async Task<IActionResult> CreateItemModel([FromBody] ItemModelDto dto)
+        public async Task<ActionResult<ApiResponse>> CreateItemModel([FromBody] ItemModelDto dto)
         {
+            string? token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            int userId = _itemTypeService.ExtractUserIdFromToken(token);
+            dto.createdBy = userId;
             var result = await _itemModelService.CreateAsync(dto);
-            return CreatedAtAction(nameof(GetItemModel), new { id = result.Id }, result);
+            return new ApiResponse(true, 201, result, AppMessages.ItemModelCreated);
         }
 
         [HttpGet("item-models/{id}")]
-        public async Task<IActionResult> GetItemModel(int id)
+        public async Task<ActionResult<ApiResponse>> GetItemModel(int id)
         {
             var result = await _itemModelService.GetByIdAsync(id);
-            if (result == null) throw new NullObjectException("Item Model not found.");
-            return Ok(result);
+            return new ApiResponse(true, 200, result, AppMessages.ItemModelsRetrieved);
         }
 
         [HttpPut("item-models/{id}")]
-        public async Task<IActionResult> UpdateItemModel(int id, [FromBody] ItemModelDto dto)
+        public async Task<ActionResult<ApiResponse>> UpdateItemModel(int id, [FromBody] ItemModelDto dto)
         {
-            await _itemModelService.UpdateAsync(id, dto);
-            return NoContent();
+            string? token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            int userId = _itemTypeService.ExtractUserIdFromToken(token);
+            dto.modifiedBy = userId;
+            var result= await _itemModelService.UpdateAsync(id, dto);
+            return new ApiResponse(true, 204, result, AppMessages.ItemModelUpdated);
         }
 
         [HttpDelete("item-models/{id}")]
-        public async Task<IActionResult> DeleteItemModel(int id)
+        public async Task<ActionResult<ApiResponse>> DeleteItemModel(int id)
         {
             await _itemModelService.DeleteAsync(id);
-            return NoContent();
+            return new ApiResponse(true, 204, null, AppMessages.ItemModelDeleted);
         }
 
         [HttpGet("item-models")]
-        public async Task<IActionResult> GetAllItemModels()
+        public async Task<ActionResult<ApiResponse>> GetAllItemModels()
         {
             var result = await _itemModelService.GetAllAsync();
-            return Ok(result);
+            return new ApiResponse(true, 200, result, AppMessages.ItemModelsRetrieved);
         }
 
         // ------------------ PURCHASE REQUEST ------------------

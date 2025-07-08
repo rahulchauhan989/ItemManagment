@@ -26,8 +26,8 @@
           "net7.0": {
             "targetAlias": "net7.0",
             "projectReferences": {
-              "d:\\ItemManagementSystem\\ItemManagementSystem.Application\\ItemManagementSystem.Application.csproj": {
-                "projectPath": "d:\\ItemManagementSystem\\ItemManagementSystem.Application\\ItemManagementSystem.Application.csproj"
+              "D:\\ItemManagementSystem\\ItemManagementSystem.Application\\ItemManagementSystem.Application.csproj": {
+                "projectPath": "D:\\ItemManagementSystem\\ItemManagementSystem.Application\\ItemManagementSystem.Application.csproj"
               },
               "D:\\ItemManagementSystem\\ItemManagementSystem.Domain\\ItemManagementSystem.Domain.csproj": {
                 "projectPath": "D:\\ItemManagementSystem\\ItemManagementSystem.Domain\\ItemManagementSystem.Domain.csproj"
@@ -106,14 +106,14 @@
         }
       }
     },
-    "d:\\ItemManagementSystem\\ItemManagementSystem.Application\\ItemManagementSystem.Application.csproj": {
+    "D:\\ItemManagementSystem\\ItemManagementSystem.Application\\ItemManagementSystem.Application.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "d:\\ItemManagementSystem\\ItemManagementSystem.Application\\ItemManagementSystem.Application.csproj",
+        "projectUniqueName": "D:\\ItemManagementSystem\\ItemManagementSystem.Application\\ItemManagementSystem.Application.csproj",
         "projectName": "ItemManagementSystem.Application",
-        "projectPath": "d:\\ItemManagementSystem\\ItemManagementSystem.Application\\ItemManagementSystem.Application.csproj",
+        "projectPath": "D:\\ItemManagementSystem\\ItemManagementSystem.Application\\ItemManagementSystem.Application.csproj",
         "packagesPath": "C:\\Users\\pca88\\.nuget\\packages\\",
-        "outputPath": "d:\\ItemManagementSystem\\ItemManagementSystem.Application\\obj\\",
+        "outputPath": "D:\\ItemManagementSystem\\ItemManagementSystem.Application\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\pca88\\AppData\\Roaming\\NuGet\\NuGet.Config"

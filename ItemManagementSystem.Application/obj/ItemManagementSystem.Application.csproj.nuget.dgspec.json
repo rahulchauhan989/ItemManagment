@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "d:\\ItemManagementSystem\\ItemManagementSystem.Application\\ItemManagementSystem.Application.csproj": {}
+    "D:\\ItemManagementSystem\\ItemManagementSystem.Application\\ItemManagementSystem.Application.csproj": {}
   },
   "projects": {
-    "d:\\ItemManagementSystem\\ItemManagementSystem.Application\\ItemManagementSystem.Application.csproj": {
+    "D:\\ItemManagementSystem\\ItemManagementSystem.Application\\ItemManagementSystem.Application.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "d:\\ItemManagementSystem\\ItemManagementSystem.Application\\ItemManagementSystem.Application.csproj",
+        "projectUniqueName": "D:\\ItemManagementSystem\\ItemManagementSystem.Application\\ItemManagementSystem.Application.csproj",
         "projectName": "ItemManagementSystem.Application",
-        "projectPath": "d:\\ItemManagementSystem\\ItemManagementSystem.Application\\ItemManagementSystem.Application.csproj",
+        "projectPath": "D:\\ItemManagementSystem\\ItemManagementSystem.Application\\ItemManagementSystem.Application.csproj",
         "packagesPath": "C:\\Users\\pca88\\.nuget\\packages\\",
-        "outputPath": "d:\\ItemManagementSystem\\ItemManagementSystem.Application\\obj\\",
+        "outputPath": "D:\\ItemManagementSystem\\ItemManagementSystem.Application\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\pca88\\AppData\\Roaming\\NuGet\\NuGet.Config"

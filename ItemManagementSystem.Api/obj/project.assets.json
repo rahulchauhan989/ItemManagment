@@ -8423,8 +8423,8 @@
         "net7.0": {
           "targetAlias": "net7.0",
           "projectReferences": {
-            "d:\\ItemManagementSystem\\ItemManagementSystem.Application\\ItemManagementSystem.Application.csproj": {
-              "projectPath": "d:\\ItemManagementSystem\\ItemManagementSystem.Application\\ItemManagementSystem.Application.csproj"
+            "D:\\ItemManagementSystem\\ItemManagementSystem.Application\\ItemManagementSystem.Application.csproj": {
+              "projectPath": "D:\\ItemManagementSystem\\ItemManagementSystem.Application\\ItemManagementSystem.Application.csproj"
             },
             "D:\\ItemManagementSystem\\ItemManagementSystem.Domain\\ItemManagementSystem.Domain.csproj": {
               "projectPath": "D:\\ItemManagementSystem\\ItemManagementSystem.Domain\\ItemManagementSystem.Domain.csproj"

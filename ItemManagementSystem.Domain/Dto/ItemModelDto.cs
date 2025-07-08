@@ -7,4 +7,6 @@ public class ItemModelDto
     public string? Description { get; set; }
     public int ItemTypeId { get; set; }
     public int Quantity { get; set; }
+    public int createdBy { get; set; }
+    public int? modifiedBy { get; set; }
 }

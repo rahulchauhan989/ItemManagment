@@ -1,8 +1,8 @@
 D:\ItemManagementSystem\ItemManagementSystem.Api\bin\Debug\net7.0\appsettings.Development.json
 D:\ItemManagementSystem\ItemManagementSystem.Api\bin\Debug\net7.0\appsettings.json
 D:\ItemManagementSystem\ItemManagementSystem.Api\bin\Debug\net7.0\ItemManagementSystem.Api.exe
-D:\ItemManagementSystem\ItemManagementSystem.Api\bin\Debug\net7.0\ItemManagementSystem.Api.deps.json
-D:\ItemManagementSystem\ItemManagementSystem.Api\bin\Debug\net7.0\ItemManagementSystem.Api.runtimeconfig.json
+d:\ItemManagementSystem\ItemManagementSystem.Api\bin\Debug\net7.0\ItemManagementSystem.Api.deps.json
+d:\ItemManagementSystem\ItemManagementSystem.Api\bin\Debug\net7.0\ItemManagementSystem.Api.runtimeconfig.json
 D:\ItemManagementSystem\ItemManagementSystem.Api\bin\Debug\net7.0\ItemManagementSystem.Api.dll
 D:\ItemManagementSystem\ItemManagementSystem.Api\bin\Debug\net7.0\ItemManagementSystem.Api.pdb
 D:\ItemManagementSystem\ItemManagementSystem.Api\bin\Debug\net7.0\AutoMapper.dll
@@ -97,9 +97,9 @@ D:\ItemManagementSystem\ItemManagementSystem.Api\obj\Debug\net7.0\staticwebasset
 D:\ItemManagementSystem\ItemManagementSystem.Api\obj\Debug\net7.0\staticwebassets.build.json
 D:\ItemManagementSystem\ItemManagementSystem.Api\obj\Debug\net7.0\staticwebassets.development.json
 D:\ItemManagementSystem\ItemManagementSystem.Api\obj\Debug\net7.0\scopedcss\bundle\ItemManagementSystem.Api.styles.css
-D:\ItemManagementSystem\ItemManagementSystem.Api\obj\Debug\net7.0\ItemManagementSystem.Api.csproj.CopyComplete
+d:\ItemManagementSystem\ItemManagementSystem.Api\obj\Debug\net7.0\ItemManagementSystem.Api.csproj.CopyComplete
 D:\ItemManagementSystem\ItemManagementSystem.Api\obj\Debug\net7.0\ItemManagementSystem.Api.dll
 D:\ItemManagementSystem\ItemManagementSystem.Api\obj\Debug\net7.0\refint\ItemManagementSystem.Api.dll
 D:\ItemManagementSystem\ItemManagementSystem.Api\obj\Debug\net7.0\ItemManagementSystem.Api.pdb
-D:\ItemManagementSystem\ItemManagementSystem.Api\obj\Debug\net7.0\ItemManagementSystem.Api.genruntimeconfig.cache
-D:\ItemManagementSystem\ItemManagementSystem.Api\obj\Debug\net7.0\ref\ItemManagementSystem.Api.dll
+d:\ItemManagementSystem\ItemManagementSystem.Api\obj\Debug\net7.0\ItemManagementSystem.Api.genruntimeconfig.cache
+d:\ItemManagementSystem\ItemManagementSystem.Api\obj\Debug\net7.0\ref\ItemManagementSystem.Api.dll

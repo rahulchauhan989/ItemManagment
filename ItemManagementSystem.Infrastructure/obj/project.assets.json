@@ -7050,11 +7050,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\ItemManagementSystem\\ItemManagementSystem.Infrastructure\\ItemManagementSystem.Infrastructure.csproj",
+      "projectUniqueName": "d:\\ItemManagementSystem\\ItemManagementSystem.Infrastructure\\ItemManagementSystem.Infrastructure.csproj",
       "projectName": "ItemManagementSystem.Infrastructure",
-      "projectPath": "D:\\ItemManagementSystem\\ItemManagementSystem.Infrastructure\\ItemManagementSystem.Infrastructure.csproj",
+      "projectPath": "d:\\ItemManagementSystem\\ItemManagementSystem.Infrastructure\\ItemManagementSystem.Infrastructure.csproj",
       "packagesPath": "C:\\Users\\pca88\\.nuget\\packages\\",
-      "outputPath": "D:\\ItemManagementSystem\\ItemManagementSystem.Infrastructure\\obj\\",
+      "outputPath": "d:\\ItemManagementSystem\\ItemManagementSystem.Infrastructure\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\pca88\\AppData\\Roaming\\NuGet\\NuGet.Config"

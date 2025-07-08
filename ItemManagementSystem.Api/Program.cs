@@ -20,7 +20,6 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 builder.Services.AddScoped<IAuthService,AuthService>();
 builder.Services.AddScoped<IEmailSender, EmailSender>();
-builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 builder.Services.AddScoped<IItemTypeService, ItemTypeService>();
 builder.Services.AddScoped<IItemModelService, ItemModelService>();
 builder.Services.AddAutoMapper(typeof(ItemManagementSystem.Application.MappingProfiles.ItemManagementProfile).Assembly);
@@ -39,8 +38,6 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"] ?? throw new InvalidOperationException("JWT Key is not configured.")))
         };
     });
-
-
 
 
 builder.Services.AddEndpointsApiExplorer();

@@ -14,6 +14,8 @@ public class ItemType
     [MaxLength(500)]
     public string? Description { get; set; }
 
+    public bool IsDeleted { get; set; } = false;
+
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     public DateTime? UpdatedAt { get; set; }

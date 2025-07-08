@@ -1,5 +1,5 @@
-D:\ItemManagementSystem\ItemManagementSystem.Domain\bin\Debug\net7.0\ItemManagementSystem.Domain.deps.json
-D:\ItemManagementSystem\ItemManagementSystem.Domain\bin\Debug\net7.0\ItemManagementSystem.Domain.runtimeconfig.json
+d:\ItemManagementSystem\ItemManagementSystem.Domain\bin\Debug\net7.0\ItemManagementSystem.Domain.deps.json
+d:\ItemManagementSystem\ItemManagementSystem.Domain\bin\Debug\net7.0\ItemManagementSystem.Domain.runtimeconfig.json
 D:\ItemManagementSystem\ItemManagementSystem.Domain\bin\Debug\net7.0\ItemManagementSystem.Domain.dll
 D:\ItemManagementSystem\ItemManagementSystem.Domain\bin\Debug\net7.0\ItemManagementSystem.Domain.pdb
 D:\ItemManagementSystem\ItemManagementSystem.Domain\obj\Debug\net7.0\ItemManagementSystem.Domain.csproj.AssemblyReference.cache
@@ -10,5 +10,5 @@ D:\ItemManagementSystem\ItemManagementSystem.Domain\obj\Debug\net7.0\ItemManagem
 D:\ItemManagementSystem\ItemManagementSystem.Domain\obj\Debug\net7.0\ItemManagementSystem.Domain.dll
 D:\ItemManagementSystem\ItemManagementSystem.Domain\obj\Debug\net7.0\refint\ItemManagementSystem.Domain.dll
 D:\ItemManagementSystem\ItemManagementSystem.Domain\obj\Debug\net7.0\ItemManagementSystem.Domain.pdb
-D:\ItemManagementSystem\ItemManagementSystem.Domain\obj\Debug\net7.0\ItemManagementSystem.Domain.genruntimeconfig.cache
-D:\ItemManagementSystem\ItemManagementSystem.Domain\obj\Debug\net7.0\ref\ItemManagementSystem.Domain.dll
+d:\ItemManagementSystem\ItemManagementSystem.Domain\obj\Debug\net7.0\ItemManagementSystem.Domain.genruntimeconfig.cache
+d:\ItemManagementSystem\ItemManagementSystem.Domain\obj\Debug\net7.0\ref\ItemManagementSystem.Domain.dll
