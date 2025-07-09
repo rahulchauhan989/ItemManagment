@@ -14,20 +14,17 @@ namespace ItemManagementSystem.Api.Controllers
     {
         private readonly IItemTypeService _itemTypeService;
         private readonly IItemModelService _itemModelService;
-        // private readonly IPurchaseRequestService _purchaseRequestService;
-        // private readonly IReturnRequestService _returnRequestService;
+        private readonly IPurchaseRequestService _purchaseRequestService;
 
         public NetworkAdminController(
             IItemTypeService itemTypeService,
-            IItemModelService itemModelService
-            // IPurchaseRequestService purchaseRequestService,
-            // IReturnRequestService returnRequestService
+            IItemModelService itemModelService,
+            IPurchaseRequestService purchaseRequestService
             )
         {
             _itemTypeService = itemTypeService;
             _itemModelService = itemModelService;
-            // _purchaseRequestService = purchaseRequestService;
-            // _returnRequestService = returnRequestService;
+            _purchaseRequestService = purchaseRequestService;
         }
 
 
@@ -113,52 +110,31 @@ namespace ItemManagementSystem.Api.Controllers
             return new ApiResponse(true, 200, result, AppMessages.ItemModelsRetrieved);
         }
 
-        // ------------------ PURCHASE REQUEST ------------------
+        [HttpPost("purchase-requests")]
+        public async Task<ActionResult<ApiResponse>> CreatePurchaseRequest([FromBody] PurchaseRequestDto dto)
+        {
+            string? token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            int userId = _itemTypeService.ExtractUserIdFromToken(token);
+            dto.CreatedBy = userId;
+            var result = await _purchaseRequestService.CreateAsync(dto);
+            return new ApiResponse(true, 201, result, AppMessages.PurchaseRequestCreated);
+        }
 
-        // [HttpPost("purchase-requests")]
-        // public async Task<IActionResult> CreatePurchaseRequest([FromBody] PurchaseRequestDto dto)
-        // {
-        //     var result = await _purchaseRequestService.CreateAsync(dto);
-        //     return CreatedAtAction(nameof(GetPurchaseRequest), new { id = result.Id }, result);
-        // }
+        [HttpGet("purchase-requests/{id}")]
+        public async Task<ActionResult<ApiResponse>> GetPurchaseRequest(int id)
+        {
+            var result = await _purchaseRequestService.GetByIdAsync(id);
+            return new ApiResponse(true, 200, result, AppMessages.PurchaseRequestsRetrieved);
+        }
 
-        // [HttpGet("purchase-requests/{id}")]
-        // public async Task<IActionResult> GetPurchaseRequest(int id)
-        // {
-        //     var result = await _purchaseRequestService.GetByIdAsync(id);
-        //     if (result == null) throw new NullObjectException("Purchase request not found.");
-        //     return Ok(result);
-        // }
+        [HttpGet("purchase-requests")]
+        public async Task<ActionResult<ApiResponse>> ListPurchaseRequests([FromQuery] PurchaseRequestFilterDto filter)
+        {
+            var result = await _purchaseRequestService.GetAllAsync(filter);
+            return new ApiResponse(true, 200, result, AppMessages.PurchaseRequestsRetrieved);
+        }
 
-        // [HttpGet("purchase-requests")]
-        // public async Task<IActionResult> ListPurchaseRequests([FromQuery] PurchaseRequestFilterDto filter)
-        // {
-        //     var result = await _purchaseRequestService.GetAllAsync(filter);
-        //     return Ok(result);
-        // }
-
-        // // ------------------ ITEM REQUEST MANAGEMENT ------------------
-
-        // [HttpGet("item-requests/pending")]
-        // public async Task<IActionResult> GetPendingItemRequests([FromQuery] ItemRequestFilterDto filter)
-        // {
-        //     var result = await _purchaseRequestService.GetPendingRequestsAsync(filter);
-        //     return Ok(result);
-        // }
-
-        // [HttpPost("item-requests/{id}/approve")]
-        // public async Task<IActionResult> ApproveItemRequest(int id, [FromBody] ApproveRequestDto dto)
-        // {
-        //     await _purchaseRequestService.ApproveRequestAsync(id, dto.Comment);
-        //     return Ok();
-        // }
-
-        // [HttpPost("item-requests/{id}/reject")]
-        // public async Task<IActionResult> RejectItemRequest(int id, [FromBody] RejectRequestDto dto)
-        // {
-        //     await _purchaseRequestService.RejectRequestAsync(id, dto.Comment);
-        //     return Ok();
-        // }
+  
 
         // // ------------------ RETURN REQUEST MANAGEMENT ------------------
 

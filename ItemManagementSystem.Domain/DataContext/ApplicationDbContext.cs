@@ -18,6 +18,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<RequestItem> RequestItems { get; set; }
     public DbSet<ReturnRequest> ReturnRequests { get; set; }
     public DbSet<ReturnRequestItem> ReturnRequestItems { get; set; }
+    public DbSet<PurchaseRequestItem> PurchaseRequestItems { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -152,10 +153,6 @@ public class ApplicationDbContext : DbContext
             .WithMany()
             .HasForeignKey(ir => ir.UserId);
 
-        modelBuilder.Entity<ItemRequest>()
-            .HasOne(ir => ir.PurchaseRequest)
-            .WithMany()
-            .HasForeignKey(ir => ir.PurchaseId);
 
         modelBuilder.Entity<RequestItem>()
             .HasOne(ri => ri.ItemRequest)

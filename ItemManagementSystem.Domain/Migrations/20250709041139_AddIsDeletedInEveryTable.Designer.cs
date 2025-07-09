@@ -3,6 +3,7 @@ using System;
 using ItemManagementSystem.Domain.DataContext;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ItemManagementSystem.Domain.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250709041139_AddIsDeletedInEveryTable")]
+    partial class AddIsDeletedInEveryTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -91,6 +94,9 @@ namespace ItemManagementSystem.Domain.Migrations
                     b.Property<int?>("ModifiedBy")
                         .HasColumnType("integer");
 
+                    b.Property<int>("PurchaseId")
+                        .HasColumnType("integer");
+
                     b.Property<string>("RequestNumber")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -112,6 +118,8 @@ namespace ItemManagementSystem.Domain.Migrations
                     b.HasIndex("CreatedBy");
 
                     b.HasIndex("ModifiedBy");
+
+                    b.HasIndex("PurchaseId");
 
                     b.HasIndex("UserId");
 
@@ -204,43 +212,6 @@ namespace ItemManagementSystem.Domain.Migrations
                     b.ToTable("PurchaseRequests");
                 });
 
-            modelBuilder.Entity("ItemManagementSystem.Domain.DataModels.PurchaseRequestItem", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("CreatedBy")
-                        .HasColumnType("integer");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("boolean");
-
-                    b.Property<int>("ItemModelId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("PurchaseRequestId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("Quantity")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CreatedBy");
-
-                    b.HasIndex("ItemModelId");
-
-                    b.HasIndex("PurchaseRequestId");
-
-                    b.ToTable("PurchaseRequestItems");
-                });
-
             modelBuilder.Entity("ItemManagementSystem.Domain.DataModels.RequestItem", b =>
                 {
                     b.Property<int>("Id")
@@ -261,9 +232,6 @@ namespace ItemManagementSystem.Domain.Migrations
                     b.Property<int>("ItemModelId")
                         .HasColumnType("integer");
 
-                    b.Property<int?>("ItemRequestId")
-                        .HasColumnType("integer");
-
                     b.Property<int?>("ModifiedBy")
                         .HasColumnType("integer");
 
@@ -281,8 +249,6 @@ namespace ItemManagementSystem.Domain.Migrations
                     b.HasIndex("CreatedBy");
 
                     b.HasIndex("ItemModelId");
-
-                    b.HasIndex("ItemRequestId");
 
                     b.HasIndex("ModifiedBy");
 
@@ -513,6 +479,12 @@ namespace ItemManagementSystem.Domain.Migrations
                         .HasForeignKey("ModifiedBy")
                         .OnDelete(DeleteBehavior.Restrict);
 
+                    b.HasOne("ItemManagementSystem.Domain.DataModels.PurchaseRequest", "PurchaseRequest")
+                        .WithMany()
+                        .HasForeignKey("PurchaseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("ItemManagementSystem.Domain.DataModels.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
@@ -522,6 +494,8 @@ namespace ItemManagementSystem.Domain.Migrations
                     b.Navigation("CreatedByUser");
 
                     b.Navigation("ModifiedByUser");
+
+                    b.Navigation("PurchaseRequest");
 
                     b.Navigation("User");
                 });
@@ -568,33 +542,6 @@ namespace ItemManagementSystem.Domain.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("ItemManagementSystem.Domain.DataModels.PurchaseRequestItem", b =>
-                {
-                    b.HasOne("ItemManagementSystem.Domain.DataModels.User", "CreatedByUser")
-                        .WithMany()
-                        .HasForeignKey("CreatedBy")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("ItemManagementSystem.Domain.DataModels.ItemModel", "ItemModel")
-                        .WithMany()
-                        .HasForeignKey("ItemModelId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("ItemManagementSystem.Domain.DataModels.PurchaseRequest", "PurchaseRequest")
-                        .WithMany()
-                        .HasForeignKey("PurchaseRequestId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("CreatedByUser");
-
-                    b.Navigation("ItemModel");
-
-                    b.Navigation("PurchaseRequest");
-                });
-
             modelBuilder.Entity("ItemManagementSystem.Domain.DataModels.RequestItem", b =>
                 {
                     b.HasOne("ItemManagementSystem.Domain.DataModels.User", "CreatedByUser")
@@ -608,10 +555,6 @@ namespace ItemManagementSystem.Domain.Migrations
                         .HasForeignKey("ItemModelId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.HasOne("ItemManagementSystem.Domain.DataModels.ItemRequest", null)
-                        .WithMany("RequestItems")
-                        .HasForeignKey("ItemRequestId");
 
                     b.HasOne("ItemManagementSystem.Domain.DataModels.User", "ModifiedByUser")
                         .WithMany()
@@ -733,11 +676,6 @@ namespace ItemManagementSystem.Domain.Migrations
                     b.Navigation("ModifiedByUser");
 
                     b.Navigation("Role");
-                });
-
-            modelBuilder.Entity("ItemManagementSystem.Domain.DataModels.ItemRequest", b =>
-                {
-                    b.Navigation("RequestItems");
                 });
 #pragma warning restore 612, 618
         }

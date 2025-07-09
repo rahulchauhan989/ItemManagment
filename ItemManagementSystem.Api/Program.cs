@@ -1,6 +1,7 @@
 using System.Text;
 using ItemManagementSystem.Application.Implementation;
 using ItemManagementSystem.Application.Interface;
+using ItemManagementSystem.Application.Services;
 using ItemManagementSystem.Domain.DataContext;
 using ItemManagementSystem.Infrastructure.Implementation;
 using ItemManagementSystem.Infrastructure.Interface;
@@ -23,6 +24,9 @@ builder.Services.AddScoped<IEmailSender, EmailSender>();
 builder.Services.AddScoped<IItemTypeService, ItemTypeService>();
 builder.Services.AddScoped<IItemModelService, ItemModelService>();
 builder.Services.AddAutoMapper(typeof(ItemManagementSystem.Application.MappingProfiles.ItemManagementProfile).Assembly);
+builder.Services.AddScoped<IPurchaseRequestService,PurchaseRequestService>();
+builder.Services.AddScoped<IItemRequestService, ItemRequestService>();
+builder.Services.AddScoped<IUserItemRequestService, UserItemRequestService>();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>

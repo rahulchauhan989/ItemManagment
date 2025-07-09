@@ -15,13 +15,11 @@ public class ItemRequest
     public int UserId { get; set; }
     public User User { get; set; } = null!;
 
-    [ForeignKey("PurchaseRequest")]
-    public int PurchaseId { get; set; }
-    public PurchaseRequest? PurchaseRequest { get; set; }
 
     [Required, MaxLength(50)]
     public string? Status { get; set; }
 
+    public bool IsDeleted { get; set; } = false;
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     public DateTime? UpdatedAt { get; set; }
@@ -33,4 +31,6 @@ public class ItemRequest
     [ForeignKey("ModifiedByUser")]
     public int? ModifiedBy { get; set; }
     public User? ModifiedByUser { get; set; }
+    public ICollection<RequestItem> RequestItems { get; set; } = new List<RequestItem>();
+
 }

@@ -17,6 +17,7 @@ public class ReturnRequest
 
   [Required, MaxLength(50)]
   public string? Status { get; set; }
+    public bool IsDeleted { get; set; } = false;
 
   public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 

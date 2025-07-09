@@ -1,12 +1,13 @@
-namespace ItemManagementSystem.Domain.Dto;
-
-public class PurchaseRequestFilterDto
+namespace ItemManagementSystem.Domain.Dto
 {
-    public string? RequestNumber { get; set; }
-    public string? UserName { get; set; }
-    public string? Status { get; set; }
-    public int? Page { get; set; }
-    public int? PageSize { get; set; }
-    public string? SortBy { get; set; }
-    public bool? Ascending { get; set; }
+    public class PurchaseRequestFilterDto
+    {
+        public string? InvoiceNumber { get; set; }
+        public int? CreatedBy { get; set; }
+        public DateTime? Date { get; set; }
+        public string? SortBy { get; set; } = "Date";
+        public bool SortDesc { get; set; } = true;
+        public int Page { get; set; } = 1;
+        public int PageSize { get; set; } = 20;
+    }
 }

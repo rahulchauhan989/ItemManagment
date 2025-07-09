@@ -30,6 +30,8 @@ public class User
     [ForeignKey("CreatedByUser")]
     public int? CreatedBy { get; set; }
     public User? CreatedByUser { get; set; }
+    public bool IsDeleted { get; set; } = false;
+
 
     [ForeignKey("ModifiedByUser")]
     public int? ModifiedBy { get; set; }

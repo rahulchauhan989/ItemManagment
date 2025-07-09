@@ -44,6 +44,7 @@ namespace ItemManagementSystem.Application.Implementation
         {
             dto.Id=0;
             dto.modifiedBy=null;
+            
             var entity = _mapper.Map<ItemType>(dto);
             var created = await _repo.AddAsync(entity);
             return _mapper.Map<ItemTypeDto>(created);

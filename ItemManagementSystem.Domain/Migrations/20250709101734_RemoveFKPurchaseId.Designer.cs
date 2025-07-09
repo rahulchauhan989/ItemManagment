@@ -3,6 +3,7 @@ using System;
 using ItemManagementSystem.Domain.DataContext;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ItemManagementSystem.Domain.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250709101734_RemoveFKPurchaseId")]
+    partial class RemoveFKPurchaseId
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -261,9 +264,6 @@ namespace ItemManagementSystem.Domain.Migrations
                     b.Property<int>("ItemModelId")
                         .HasColumnType("integer");
 
-                    b.Property<int?>("ItemRequestId")
-                        .HasColumnType("integer");
-
                     b.Property<int?>("ModifiedBy")
                         .HasColumnType("integer");
 
@@ -281,8 +281,6 @@ namespace ItemManagementSystem.Domain.Migrations
                     b.HasIndex("CreatedBy");
 
                     b.HasIndex("ItemModelId");
-
-                    b.HasIndex("ItemRequestId");
 
                     b.HasIndex("ModifiedBy");
 
@@ -609,10 +607,6 @@ namespace ItemManagementSystem.Domain.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("ItemManagementSystem.Domain.DataModels.ItemRequest", null)
-                        .WithMany("RequestItems")
-                        .HasForeignKey("ItemRequestId");
-
                     b.HasOne("ItemManagementSystem.Domain.DataModels.User", "ModifiedByUser")
                         .WithMany()
                         .HasForeignKey("ModifiedBy")
@@ -733,11 +727,6 @@ namespace ItemManagementSystem.Domain.Migrations
                     b.Navigation("ModifiedByUser");
 
                     b.Navigation("Role");
-                });
-
-            modelBuilder.Entity("ItemManagementSystem.Domain.DataModels.ItemRequest", b =>
-                {
-                    b.Navigation("RequestItems");
                 });
 #pragma warning restore 612, 618
         }

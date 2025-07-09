@@ -3,6 +3,7 @@ using System;
 using ItemManagementSystem.Domain.DataContext;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ItemManagementSystem.Domain.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250709054602_AddPurchaseRequestItem")]
+    partial class AddPurchaseRequestItem
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -91,6 +94,9 @@ namespace ItemManagementSystem.Domain.Migrations
                     b.Property<int?>("ModifiedBy")
                         .HasColumnType("integer");
 
+                    b.Property<int>("PurchaseId")
+                        .HasColumnType("integer");
+
                     b.Property<string>("RequestNumber")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -112,6 +118,8 @@ namespace ItemManagementSystem.Domain.Migrations
                     b.HasIndex("CreatedBy");
 
                     b.HasIndex("ModifiedBy");
+
+                    b.HasIndex("PurchaseId");
 
                     b.HasIndex("UserId");
 
@@ -261,9 +269,6 @@ namespace ItemManagementSystem.Domain.Migrations
                     b.Property<int>("ItemModelId")
                         .HasColumnType("integer");
 
-                    b.Property<int?>("ItemRequestId")
-                        .HasColumnType("integer");
-
                     b.Property<int?>("ModifiedBy")
                         .HasColumnType("integer");
 
@@ -281,8 +286,6 @@ namespace ItemManagementSystem.Domain.Migrations
                     b.HasIndex("CreatedBy");
 
                     b.HasIndex("ItemModelId");
-
-                    b.HasIndex("ItemRequestId");
 
                     b.HasIndex("ModifiedBy");
 
@@ -513,6 +516,12 @@ namespace ItemManagementSystem.Domain.Migrations
                         .HasForeignKey("ModifiedBy")
                         .OnDelete(DeleteBehavior.Restrict);
 
+                    b.HasOne("ItemManagementSystem.Domain.DataModels.PurchaseRequest", "PurchaseRequest")
+                        .WithMany()
+                        .HasForeignKey("PurchaseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("ItemManagementSystem.Domain.DataModels.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
@@ -522,6 +531,8 @@ namespace ItemManagementSystem.Domain.Migrations
                     b.Navigation("CreatedByUser");
 
                     b.Navigation("ModifiedByUser");
+
+                    b.Navigation("PurchaseRequest");
 
                     b.Navigation("User");
                 });
@@ -608,10 +619,6 @@ namespace ItemManagementSystem.Domain.Migrations
                         .HasForeignKey("ItemModelId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.HasOne("ItemManagementSystem.Domain.DataModels.ItemRequest", null)
-                        .WithMany("RequestItems")
-                        .HasForeignKey("ItemRequestId");
 
                     b.HasOne("ItemManagementSystem.Domain.DataModels.User", "ModifiedByUser")
                         .WithMany()
@@ -733,11 +740,6 @@ namespace ItemManagementSystem.Domain.Migrations
                     b.Navigation("ModifiedByUser");
 
                     b.Navigation("Role");
-                });
-
-            modelBuilder.Entity("ItemManagementSystem.Domain.DataModels.ItemRequest", b =>
-                {
-                    b.Navigation("RequestItems");
                 });
 #pragma warning restore 612, 618
         }

@@ -28,7 +28,7 @@ namespace ItemManagementSystem.Application.Implementation
             if (user == null || !BCrypt.Net.BCrypt.Verify(password, user.Password))
                 throw new NullObjectException(AppMessages.InvalidCredentials);
 
-            var jwtKey = _configuration["Jwt:Key"] ?? throw new InvalidOperationException("JWT Key is not configured.");
+            var jwtKey = _configuration["Jwt:Key"] ?? throw new InvalidOperationException(AppMessages.JwtIsNotConfig);
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 

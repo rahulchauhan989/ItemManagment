@@ -10,4 +10,5 @@ public interface IRepository<T> where T : class
     Task UpdateAsync(T entity);
     Task<T> AddAsync(T entity);
     Task DeleteAsync(T entity);
+    Task<IEnumerable<T>> FindIncludingAsync(Expression<Func<T, bool>> predicate, params Expression<Func<T, object>>[] includeProperties);
 }
