@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "q1cahQ1TOtvX5BzBZf9+O1GMfkpaVpoexF8VK6eYfFDWnsYdOfPev/GoMxFwzsN96MYCVE4ewH2y81mpfz37qw==",
+  "dgSpecHash": "mY2d0wtKkpaLXlNvt9ePXBlEV/T0YIoAqknZq6sqitCSZQcf13cnFjUcC8iZfAJIh3ukbNKS5Wy2W2f7VFNtYA==",
   "success": true,
-  "projectFilePath": "D:\\ItemManagementSystem\\ItemManagementSystem.Api\\ItemManagementSystem.Api.csproj",
+  "projectFilePath": "d:\\ItemManagementSystem\\ItemManagementSystem.Api\\ItemManagementSystem.Api.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\pca88\\.nuget\\packages\\automapper\\12.0.1\\automapper.12.0.1.nupkg.sha512",
     "C:\\Users\\pca88\\.nuget\\packages\\automapper.extensions.microsoft.dependencyinjection\\12.0.1\\automapper.extensions.microsoft.dependencyinjection.12.0.1.nupkg.sha512",

@@ -76,6 +76,8 @@ namespace ItemManagementSystem.Application.Implementation
             foreach (var item in requestItems)
             {
                 var itemModel = await _itemModelRepo.GetByIdAsync(item.ItemModelId);
+                if (itemModel == null)
+                    throw new NullObjectException($"ItemModel with ID {item.ItemModelId} not found.");
                 itemModel.Quantity -= item.Quantity;
                 await _itemModelRepo.UpdateAsync(itemModel);
             }

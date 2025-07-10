@@ -15,7 +15,6 @@ namespace ItemManagementSystem.Domain.Dto
 public class PurchaseRequestItemDto
 {
     public int ItemModelId { get; set; }
-
     public string? Name { get; set; }
     public string? ItemType { get; set; }
     public int Quantity { get; set; }

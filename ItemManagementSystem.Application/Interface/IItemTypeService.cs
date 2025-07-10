@@ -1,13 +1,14 @@
 using ItemManagementSystem.Domain.Dto;
+using ItemManagementSystem.Domain.Dto.Request;
 
 namespace ItemManagementSystem.Application.Interface;
 
 public interface IItemTypeService
 {
-    Task<ItemTypeDto> CreateAsync(ItemTypeDto dto);
+    Task<ItemTypeCreateRequest> CreateAsync(ItemTypeCreateRequest dto,int userId);
     Task<ItemTypeDto?> GetByIdAsync(int id);
     Task<IEnumerable<ItemTypeDto>> GetAllAsync();
-    Task<ItemTypeDto> UpdateAsync(int id, ItemTypeDto dto);
+    Task<ItemTypeCreateRequest> updateAsync(int id, ItemTypeCreateRequest dto, int userId);
     Task DeleteAsync(int id);
     int ExtractUserIdFromToken(string token);
 }

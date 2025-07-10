@@ -1,8 +1,10 @@
+using System.Security.Cryptography;
 using AutoMapper;
 using ItemManagementSystem.Application.Interface;
 using ItemManagementSystem.Domain.Constants;
 using ItemManagementSystem.Domain.DataModels;
 using ItemManagementSystem.Domain.Dto;
+using ItemManagementSystem.Domain.Dto.Request;
 using ItemManagementSystem.Domain.Exception;
 using ItemManagementSystem.Infrastructure.Interface;
 
@@ -75,6 +77,46 @@ namespace ItemManagementSystem.Application.Implementation
                     ItemModelId = itemDto.ItemModelId,
                     Quantity = itemDto.Quantity
                 });
+            }
+
+            var resultDto = _mapper.Map<PurchaseRequestDto>(createdPurchase);
+            resultDto.Items = savedItems;
+            return resultDto;
+        }
+
+        public async Task<PurchaseRequestDto> CreateAsync(PurchaseRequestCreateDto dto, int userId)
+        {
+            //check in dto itemmodal id exist, if not than throw exception
+            if (dto.Items == null || dto.Items.Count == 0)
+                throw new NullObjectException(AppMessages.PurchaseRequestItemsCannotBeEmpty);
+
+
+            var purchaseEntity = _mapper.Map<PurchaseRequest>(dto);
+            purchaseEntity.Date = DateTime.UtcNow;
+            purchaseEntity.InvoiceNumber = GenerateInvoiceNumber();
+            purchaseEntity.CreatedBy = userId;
+            var createdPurchase = await _purchaseRepo.AddAsync(purchaseEntity);
+
+            var savedItems = new List<PurchaseRequestItemDto>();
+            foreach (var itemDto in dto.Items)
+            {
+                var itemModel = await _itemModelRepo.GetByIdAsync(itemDto.ItemModelId);
+                if (itemModel == null)
+                    throw new NullObjectException(AppMessages.ItemModelsNotFound);
+
+                itemModel.Quantity += itemDto.Quantity;
+                await _itemModelRepo.UpdateAsync(itemModel);
+
+                // AutoMapper for mapping
+                var purchaseItem = _mapper.Map<PurchaseRequestItem>(itemDto);
+                purchaseItem.PurchaseRequestId = createdPurchase.Id;
+                purchaseItem.CreatedBy = userId;
+                purchaseItem.IsDeleted = false;
+
+                await _purchaseItemRepo.AddAsync(purchaseItem);
+
+                var purchaseItemDto = _mapper.Map<PurchaseRequestItemDto>(purchaseItem);
+                savedItems.Add(purchaseItemDto);
             }
 
             var resultDto = _mapper.Map<PurchaseRequestDto>(createdPurchase);
@@ -185,6 +227,7 @@ namespace ItemManagementSystem.Application.Implementation
 
         private string GenerateInvoiceNumber()
         {
+
             return $"PR-{DateTime.UtcNow:yyyyMMdd}-{Guid.NewGuid().ToString().Substring(0, 5).ToUpper()}";
         }
     }

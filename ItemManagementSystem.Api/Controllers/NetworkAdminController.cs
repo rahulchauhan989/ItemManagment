@@ -1,6 +1,7 @@
 using ItemManagementSystem.Application.Interface;
 using ItemManagementSystem.Domain.Constants;
 using ItemManagementSystem.Domain.Dto;
+using ItemManagementSystem.Domain.Dto.Request;
 using ItemManagementSystem.Domain.Exception;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -29,13 +30,14 @@ namespace ItemManagementSystem.Api.Controllers
 
 
         [HttpPost("item-types")]
-        public async Task<ActionResult<ApiResponse>> CreateItemType([FromBody] ItemTypeDto dto)
+        public async Task<ActionResult<ApiResponse>> CreateItemType([FromBody] ItemTypeCreateRequest request)
         {
             string? token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
             int userId = _itemTypeService.ExtractUserIdFromToken(token);
-            dto.createdBy = userId;
-            var result = await _itemTypeService.CreateAsync(dto);
-            return new ApiResponse(true, 201, result, AppMessages.ItemTypeCreated);
+
+            var response = await _itemTypeService.CreateAsync(request, userId);
+
+            return new ApiResponse(true, 201, response, AppMessages.ItemTypeCreated);
         }
 
         [HttpGet("item-types/{id}")]
@@ -46,12 +48,12 @@ namespace ItemManagementSystem.Api.Controllers
         }
 
         [HttpPut("item-types/{id}")]
-        public async Task<ActionResult<ApiResponse>> UpdateItemType(int id, [FromBody] ItemTypeDto dto)
+        public async Task<ActionResult<ApiResponse>> UpdateItemType(int id, [FromBody] ItemTypeCreateRequest dto)
         {
             string? token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
             int userId = _itemTypeService.ExtractUserIdFromToken(token);
-            dto.modifiedBy = userId;
-            var result = await _itemTypeService.UpdateAsync(id, dto);
+
+            var result = await _itemTypeService.updateAsync(id, dto, userId);
             return new ApiResponse(true, 204, result, AppMessages.ItemTypeUpdated);
         }
 
@@ -70,12 +72,11 @@ namespace ItemManagementSystem.Api.Controllers
         }
 
         [HttpPost("item-models")]
-        public async Task<ActionResult<ApiResponse>> CreateItemModel([FromBody] ItemModelDto dto)
+        public async Task<ActionResult<ApiResponse>> CreateItemModel([FromBody] ItemModelCreateDto dto)
         {
             string? token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
             int userId = _itemTypeService.ExtractUserIdFromToken(token);
-            dto.createdBy = userId;
-            var result = await _itemModelService.CreateAsync(dto);
+            var result = await _itemModelService.CreateAsync(dto, userId);
             return new ApiResponse(true, 201, result, AppMessages.ItemModelCreated);
         }
 
@@ -87,12 +88,11 @@ namespace ItemManagementSystem.Api.Controllers
         }
 
         [HttpPut("item-models/{id}")]
-        public async Task<ActionResult<ApiResponse>> UpdateItemModel(int id, [FromBody] ItemModelDto dto)
+        public async Task<ActionResult<ApiResponse>> UpdateItemModel(int id, [FromBody] ItemModelCreateDto dto)
         {
             string? token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
             int userId = _itemTypeService.ExtractUserIdFromToken(token);
-            dto.modifiedBy = userId;
-            var result= await _itemModelService.UpdateAsync(id, dto);
+            var result = await _itemModelService.UpdateAsync(id, dto, userId);
             return new ApiResponse(true, 204, result, AppMessages.ItemModelUpdated);
         }
 
@@ -110,13 +110,23 @@ namespace ItemManagementSystem.Api.Controllers
             return new ApiResponse(true, 200, result, AppMessages.ItemModelsRetrieved);
         }
 
+        // [HttpPost("purchase-requests")]
+        // public async Task<ActionResult<ApiResponse>> CreatePurchaseRequest([FromBody] PurchaseRequestDto dto)
+        // {
+        //     string? token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+        //     int userId = _itemTypeService.ExtractUserIdFromToken(token);
+        //     dto.CreatedBy = userId;
+        //     var result = await _purchaseRequestService.CreateAsync(dto);
+        //     return new ApiResponse(true, 201, result, AppMessages.PurchaseRequestCreated);
+        // }
+
         [HttpPost("purchase-requests")]
-        public async Task<ActionResult<ApiResponse>> CreatePurchaseRequest([FromBody] PurchaseRequestDto dto)
+        public async Task<ActionResult<ApiResponse>> CreatePurchaseRequest([FromBody] PurchaseRequestCreateDto dto)
         {
             string? token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
             int userId = _itemTypeService.ExtractUserIdFromToken(token);
-            dto.CreatedBy = userId;
-            var result = await _purchaseRequestService.CreateAsync(dto);
+
+            var result = await _purchaseRequestService.CreateAsync(dto,userId);
             return new ApiResponse(true, 201, result, AppMessages.PurchaseRequestCreated);
         }
 
@@ -134,7 +144,7 @@ namespace ItemManagementSystem.Api.Controllers
             return new ApiResponse(true, 200, result, AppMessages.PurchaseRequestsRetrieved);
         }
 
-  
+
 
         // // ------------------ RETURN REQUEST MANAGEMENT ------------------
 

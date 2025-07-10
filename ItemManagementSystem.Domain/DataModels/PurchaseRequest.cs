@@ -16,7 +16,6 @@ public class PurchaseRequest
 
     public bool IsDeleted { get; set; } = false;
 
-
     [ForeignKey("User")]
     public int CreatedBy { get; set; }
     public User? User { get; set; }

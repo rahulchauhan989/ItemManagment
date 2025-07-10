@@ -2,7 +2,6 @@ using System.Net;
 using System.Text.Json;
 using ItemManagementSystem.Domain.Dto;
 using ItemManagementSystem.Domain.Exception;
-using Microsoft.AspNetCore.Http;
 
 namespace ItemManagementSystem.Api.Middleware
 {
@@ -10,7 +9,7 @@ namespace ItemManagementSystem.Api.Middleware
     {
         private readonly RequestDelegate _next;
 
-        public ExceptionHandlerMiddleware(RequestDelegate next)
+        public ExceptionHandlerMiddleware(RequestDelegate next, ILogger<ExceptionHandlerMiddleware> logger)
         {
             _next = next;
         }
@@ -19,7 +18,7 @@ namespace ItemManagementSystem.Api.Middleware
         {
             try
             {
-                 var ipAddress = context.Connection.RemoteIpAddress?.ToString();
+                 var ipAddress = context.Connection.RemoteIpAddress?.ToString();                 
                  Console.WriteLine("IpAdress : " + ipAddress);
                  await _next(context);
             }

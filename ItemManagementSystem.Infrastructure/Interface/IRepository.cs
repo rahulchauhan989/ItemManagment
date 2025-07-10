@@ -1,4 +1,5 @@
 using System.Linq.Expressions;
+using ItemManagementSystem.Domain.DataModels;
 
 namespace ItemManagementSystem.Infrastructure.Interface;
 
@@ -11,4 +12,5 @@ public interface IRepository<T> where T : class
     Task<T> AddAsync(T entity);
     Task DeleteAsync(T entity);
     Task<IEnumerable<T>> FindIncludingAsync(Expression<Func<T, bool>> predicate, params Expression<Func<T, object>>[] includeProperties);
+
 }

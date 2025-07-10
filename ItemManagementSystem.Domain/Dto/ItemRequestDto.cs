@@ -15,8 +15,8 @@ namespace ItemManagementSystem.Domain.Dto
 
     public class RequestItemDto
     {
-        public int? Id { get; set; }
-        public int? RequestId { get; set; }
+        // public int? Id { get; set; }
+        // public int? RequestId { get; set; }
         public int ItemModelId { get; set; }
         public int Quantity { get; set; }
 

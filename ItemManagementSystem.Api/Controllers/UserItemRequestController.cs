@@ -19,6 +19,16 @@ public class UserItemRequestController : ControllerBase
         _service = service;
     }
 
+    // [HttpPost]
+    // [Authorize]
+    // public async Task<ActionResult<ApiResponse>> CreateRequest([FromBody] CreateItemRequestDto dto)
+    // {
+    //     string? token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+    //     int userId = _itemTypeService.ExtractUserIdFromToken(token);
+    //     var response = await _service.CreateRequestAsync(userId, dto);
+    //     return new ApiResponse(true,201,response,AppMessages.UserCreatedItemReq);
+    // }
+
     [HttpPost]
     [Authorize]
     public async Task<ActionResult<ApiResponse>> CreateRequest([FromBody] CreateItemRequestDto dto)
@@ -26,7 +36,7 @@ public class UserItemRequestController : ControllerBase
         string? token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
         int userId = _itemTypeService.ExtractUserIdFromToken(token);
         var response = await _service.CreateRequestAsync(userId, dto);
-        return new ApiResponse(true,201,response,AppMessages.UserCreatedItemReq);
+        return new ApiResponse(true, 201, response, AppMessages.UserCreatedItemReq);
     }
 
     [HttpGet("my")]
@@ -39,14 +49,13 @@ public class UserItemRequestController : ControllerBase
         return new ApiResponse(true, 200, list, AppMessages.GetMyRequests);
     }
 
-    [HttpPatch("{requestId}/status")]
+    [HttpPatch("{requestId}/CancelMyRequest")]
     [Authorize]
-    public async Task<ActionResult<ApiResponse>> ChangeStatus(int requestId, [FromQuery] string status)
+    public async Task<ActionResult<ApiResponse>> CancelMyRequest(int requestId)
     {
         string? token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
         int userId = _itemTypeService.ExtractUserIdFromToken(token);
-        bool updated = await _service.ChangeStatusAsync(requestId, status, userId);
-        if (!updated) return BadRequest("Invalid status or request not found.");
+        bool updated = await _service.ChangeStatusAsync(requestId, userId);
         return new ApiResponse(true, 200, null, "Request status updated successfully.");
     }
 }

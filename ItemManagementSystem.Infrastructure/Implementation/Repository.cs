@@ -19,40 +19,17 @@ public class Repository<T> : IRepository<T> where T : class
     public async Task<T?> GetByIdAsync(int id)
     {
         var entity = await _entities.FindAsync(id);
-        if (entity != null)
-        {
-            var prop = typeof(T).GetProperty("IsDeleted");
-            if (prop != null && prop.GetValue(entity) is bool isDeleted && isDeleted)
-                return null;
-        }
         return entity;
     }
 
     public async Task<IEnumerable<T>> GetAllAsync()
     {
-        var param = Expression.Parameter(typeof(T), "e");
-        var prop = Expression.Property(param, "IsDeleted");
-        var notDeleted = Expression.Not(prop);
-        var lambda = Expression.Lambda<Func<T, bool>>(notDeleted, param);
-
-        return await _entities.Where(lambda).ToListAsync();
+        return await _entities.ToListAsync();
     }
 
     public async Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> predicate)
     {
-        var param = Expression.Parameter(typeof(T), "e");
-        var prop = Expression.Property(param, "IsDeleted");
-        var notDeleted = Expression.Not(prop);
-        var softDeleteLambda = Expression.Lambda<Func<T, bool>>(notDeleted, param);
-
-        var combined = Expression.Lambda<Func<T, bool>>(
-            Expression.AndAlso(
-                Expression.Invoke(predicate, param),
-                Expression.Invoke(softDeleteLambda, param)
-            ),
-            param
-        );
-        return await _entities.Where(combined).ToListAsync();
+        return await _entities.Where(predicate).ToListAsync();
     }
 
     public async Task UpdateAsync(T entity)

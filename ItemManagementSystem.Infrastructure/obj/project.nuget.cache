@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "PN03ZRBhGw2PQWx6aGRQ7nFeiEcHBKpwxJDoXJRyoIVFD3engfNybTD6sNUVSv4BTy4a0u6MDPAEEzrUA35dvQ==",
+  "dgSpecHash": "acV83I5FZd/p90WjppzD9u6bMUSa1nXJpKA6hHMvGftHEkv0g0fLJEnjUT0JpEIx29/Cx7M6F6zvdQWjiwWG7A==",
   "success": true,
-  "projectFilePath": "D:\\ItemManagementSystem\\ItemManagementSystem.Infrastructure\\ItemManagementSystem.Infrastructure.csproj",
+  "projectFilePath": "d:\\ItemManagementSystem\\ItemManagementSystem.Infrastructure\\ItemManagementSystem.Infrastructure.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\pca88\\.nuget\\packages\\azure.core\\1.35.0\\azure.core.1.35.0.nupkg.sha512",
     "C:\\Users\\pca88\\.nuget\\packages\\azure.identity\\1.10.3\\azure.identity.1.10.3.nupkg.sha512",
