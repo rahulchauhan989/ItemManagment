@@ -30,7 +30,6 @@ public static class AppMessages
     public const string ItemModelDeleted = "Item Model deleted successfully.";
     public const string ItemModelsNotFound = "No Item Models found.";
     public const string ItemModelsRetrieved = "Item Models retrieved successfully.";
-
     public const string PurchaseRequestItemsCannotBeEmpty = "Purchase Request items cannot be empty.";
     public const string PurchaseRequestNotFound = "Purchase Request not found.";
     public const string ItemRequestNotFound = "Item Request not found.";
@@ -50,5 +49,8 @@ public static class AppMessages
     public const string ItemRequestItemsCannotBeEmpty = "Item request items cannot be empty.";
     public const string UnauthorizedAction = "You are not authorized to perform this action.";
     public const string cannotchangeOtherPersonstatus = "You cannot change the status of another person's request.";
+    public const string RequestCancelled = "Request cancelled successfully.";
+
+    public const string RejectRequest = "Only Pending requests can be approved or rejected.";
 
 }

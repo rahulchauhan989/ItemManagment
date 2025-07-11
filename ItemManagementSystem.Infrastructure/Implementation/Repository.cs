@@ -1,5 +1,8 @@
+using System.Linq;
 using System.Linq.Expressions;
 using ItemManagementSystem.Domain.DataContext;
+using ItemManagementSystem.Domain.DataModels;
+using ItemManagementSystem.Domain.Dto.Request;
 using ItemManagementSystem.Infrastructure.Interface;
 using Microsoft.EntityFrameworkCore;
 
@@ -56,7 +59,6 @@ public class Repository<T> : IRepository<T> where T : class
         }
     }
 
-
     public async Task<IEnumerable<T>> FindIncludingAsync(Expression<Func<T, bool>> predicate, params Expression<Func<T, object>>[] includeProperties)
     {
         IQueryable<T> query = _entities;
@@ -78,4 +80,113 @@ public class Repository<T> : IRepository<T> where T : class
         );
         return await query.Where(combined).ToListAsync();
     }
+
+    public async Task<PagedResultDto<T>> GetPagedAsync(
+    Expression<Func<T, bool>> filter,
+    Func<IQueryable<T>, IOrderedQueryable<T>> orderBy,
+    int page,
+    int pageSize)
+    {
+        var query = _entities.Where(filter);
+
+        var totalCount = await query.CountAsync();
+        var items = await orderBy(query)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+
+        return new PagedResultDto<T>
+        {
+            Items = items,
+            TotalCount = totalCount,
+            Page = page,
+            PageSize = pageSize
+        };
+    }
+
+    // public async Task<PagedResultDto<ItemRequest>> GetPagedAsync(
+    // Expression<Func<ItemRequest, bool>> filter,
+    // Func<IQueryable<ItemRequest>, IOrderedQueryable<ItemRequest>> orderBy,
+    // int page,
+    // int pageSize)
+    // {
+    //     IQueryable<ItemRequest> query = _context.ItemRequests
+    //         .Where(filter)
+    //         .Include(r => r.RequestItems)
+    //             .ThenInclude(ri => ri.ItemModel)
+    //                 .ThenInclude(im => im.ItemType)
+    //         .Include(r => r.User);
+
+    //     var totalCount = await query.CountAsync();
+    //     var items = await orderBy(query)
+    //         .Skip((page - 1) * pageSize)
+    //         .Take(pageSize)
+    //         .ToListAsync();
+
+    //     return new PagedResultDto<ItemRequest>
+    //     {
+    //         Items = items,
+    //         TotalCount = totalCount,
+    //         Page = page,
+    //         PageSize = pageSize
+    //     };
+    // }
+
+
+
+
+    public async Task<PagedResultDto<T>> GetPagedAsyncWithIncludes(
+    Expression<Func<T, bool>> filter,
+    Func<IQueryable<T>, IOrderedQueryable<T>> orderBy,
+    int page,
+    int pageSize,
+    params Expression<Func<T, object>>[] includeProperties)
+    {
+        IQueryable<T> query = _entities.Where(filter);
+        foreach (var includeProperty in includeProperties)
+            query = query.Include(includeProperty);
+
+        var totalCount = await query.CountAsync();
+        var items = await orderBy(query)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+
+        return new PagedResultDto<T>
+        {
+            Items = items,
+            TotalCount = totalCount,
+            Page = page,
+            PageSize = pageSize
+        };
+    }
+
+    // public async Task<PagedResultDto<ItemRequest>> GetPagedRequestsWithItemsAsync(
+    //     Expression<Func<ItemRequest, bool>> filter,
+    //     Func<IQueryable<ItemRequest>, IOrderedQueryable<ItemRequest>> orderBy,
+    //     int page,
+    //     int pageSize)
+    // {
+    //     IQueryable<ItemRequest> query = _entities
+    //         .Where(filter)
+    //         .Include(r => r.RequestItems)
+    //             .ThenInclude(ri => ri.ItemModel)
+    //                 .ThenInclude(im => im.ItemType);
+
+    //     var totalCount = await query.CountAsync();
+    //     var items = await orderBy(query)
+    //         .Skip((page - 1) * pageSize)
+    //         .Take(pageSize)
+    //         .ToListAsync();
+
+    //     return new PagedResultDto<ItemRequest>
+    //     {
+    //         Items = items,
+    //         TotalCount = totalCount,
+    //         Page = page,
+    //         PageSize = pageSize
+    //     };
+    // }
+
+
 }

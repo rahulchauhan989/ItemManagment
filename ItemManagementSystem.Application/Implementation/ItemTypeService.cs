@@ -1,4 +1,5 @@
 using System.IdentityModel.Tokens.Jwt;
+using System.Linq.Expressions;
 using System.Security.Claims;
 using AutoMapper;
 using ItemManagementSystem.Application.Interface;
@@ -16,8 +17,11 @@ namespace ItemManagementSystem.Application.Implementation
         private readonly IRepository<ItemType> _repo;
         private readonly IMapper _mapper;
 
-        public ItemTypeService(IRepository<ItemType> repo, IMapper mapper)
+        private readonly IRepository<ItemModel> _itemmodel;
+
+        public ItemTypeService(IRepository<ItemType> repo, IMapper mapper, IRepository<ItemModel> itemmodel)
         {
+            _itemmodel = itemmodel;
             _repo = repo;
             _mapper = mapper;
         }
@@ -66,8 +70,8 @@ namespace ItemManagementSystem.Application.Implementation
             if (entity == null)
                 throw new NullObjectException(AppMessages.ItemTypeNotFound);
 
-            if(entity.IsDeleted)
-                throw new NullObjectException(AppMessages.ItemTypeNotFound);    
+            if (entity.IsDeleted)
+                throw new NullObjectException(AppMessages.ItemTypeNotFound);
             return _mapper.Map<ItemTypeDto>(entity);
         }
 
@@ -76,10 +80,39 @@ namespace ItemManagementSystem.Application.Implementation
             var entities = await _repo.GetAllAsync();
 
             var filtered = entities
-                .Where(e => !e.IsDeleted)  
+                .Where(e => !e.IsDeleted)
                 .ToList();
 
             return _mapper.Map<IEnumerable<ItemTypeDto>>(filtered);
+        }
+
+        public async Task<PagedResultDto<ItemTypeDto>> GetPagedItemTypesAsync(ItemTypeFilterDto filter)
+        {
+            // Filtering (search by name)
+            Expression<Func<ItemType, bool>> filterExpression = x =>
+                !x.IsDeleted && (string.IsNullOrEmpty(filter.SearchTerm) || x.Name.ToLower().Contains(filter.SearchTerm.ToLower()));
+
+            // Sorting
+            Func<IQueryable<ItemType>, IOrderedQueryable<ItemType>> orderBy = query =>
+            {
+                if (filter.OrderBy?.Equals("Name", StringComparison.OrdinalIgnoreCase) == true)
+                    return filter.SortDesc ? query.OrderByDescending(x => x.Name) : query.OrderBy(x => x.Name);
+                if (filter.OrderBy?.Equals("CreatedAt", StringComparison.OrdinalIgnoreCase) == true)
+                    return filter.SortDesc ? query.OrderByDescending(x => x.CreatedAt) : query.OrderBy(x => x.CreatedAt);
+
+                return query.OrderBy(x => x.Name);
+            };
+
+            var pagedResult = await _repo.GetPagedAsync(filterExpression, orderBy, filter.Page, filter.PageSize);
+
+            // Map entities to DTOs
+            return new PagedResultDto<ItemTypeDto>
+            {
+                Items = _mapper.Map<IEnumerable<ItemTypeDto>>(pagedResult.Items),
+                TotalCount = pagedResult.TotalCount,
+                Page = pagedResult.Page,
+                PageSize = pagedResult.PageSize
+            };
         }
 
 

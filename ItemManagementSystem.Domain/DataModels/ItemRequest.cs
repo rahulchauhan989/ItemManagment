@@ -20,6 +20,8 @@ public class ItemRequest
     public string? Status { get; set; }
 
     public bool IsDeleted { get; set; } = false;
+    
+    public string ? Comment { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     public DateTime? UpdatedAt { get; set; }

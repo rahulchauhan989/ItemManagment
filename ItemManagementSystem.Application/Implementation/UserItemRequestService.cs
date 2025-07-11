@@ -1,8 +1,10 @@
+using System.Linq.Expressions;
 using AutoMapper;
 using ItemManagementSystem.Application.Interface;
 using ItemManagementSystem.Domain.Constants;
 using ItemManagementSystem.Domain.DataModels;
 using ItemManagementSystem.Domain.Dto;
+using ItemManagementSystem.Domain.Dto.Request;
 using ItemManagementSystem.Domain.Exception;
 using ItemManagementSystem.Infrastructure.Interface;
 
@@ -124,17 +126,42 @@ public class UserItemRequestService : IUserItemRequestService
             }).ToList()
         };
     }
-    public async Task<List<ItemRequestResponseDto>> GetRequestsByUserAsync(int userId)
+ 
+    public async Task<PagedResultDto<ItemRequestResponseDto>> GetRequestsByUserPagedAsync(int userId, Domain.Dto.Request.ItemRequestFilterDto filter)
     {
-        var requests = await _requestRepo.FindAsync(r => r.UserId == userId && !r.IsDeleted);
-        var result = new List<ItemRequestResponseDto>();
-        foreach (var r in requests.OrderByDescending(x => x.CreatedAt))
+        // Build filter expression
+        Expression<Func<ItemRequest, bool>> predicate = r =>
+            r.UserId == userId &&
+            !r.IsDeleted &&
+            (string.IsNullOrEmpty(filter.Status) || r.Status == filter.Status) &&
+            (string.IsNullOrEmpty(filter.SearchTerm) || r.RequestNumber.Contains(filter.SearchTerm));
+
+        // Build sorting
+        Func<IQueryable<ItemRequest>, IOrderedQueryable<ItemRequest>> orderBy;
+        switch (filter.OrderBy?.ToLower())
+        {
+            case "requestnumber":
+                orderBy = q => filter.SortDesc ? q.OrderByDescending(x => x.RequestNumber) : q.OrderBy(x => x.RequestNumber);
+                break;
+            case "status":
+                orderBy = q => filter.SortDesc ? q.OrderByDescending(x => x.Status) : q.OrderBy(x => x.Status);
+                break;
+            default:
+                orderBy = q => filter.SortDesc ? q.OrderByDescending(x => x.CreatedAt) : q.OrderBy(x => x.CreatedAt);
+                break;
+        }
+
+        var pagedResult = await _requestRepo.GetPagedAsync(predicate, orderBy, filter.Page, filter.PageSize);
+
+        // Fetch items for each request
+        var resultItems = new List<ItemRequestResponseDto>();
+        foreach (var r in pagedResult.Items)
         {
             var items = await _requestItemRepo.FindAsync(i => i.RequestId == r.Id && !i.IsDeleted);
-            result.Add(new ItemRequestResponseDto
+            resultItems.Add(new ItemRequestResponseDto
             {
                 Id = r.Id,
-                RequestNumber = r.RequestNumber!,
+                RequestNumber = r.RequestNumber,
                 Status = r.Status!,
                 CreatedAt = r.CreatedAt,
                 Items = items.Select(i => new RequestItemDto
@@ -144,7 +171,14 @@ public class UserItemRequestService : IUserItemRequestService
                 }).ToList()
             });
         }
-        return result;
+
+        return new PagedResultDto<ItemRequestResponseDto>
+        {
+            Items = resultItems,
+            TotalCount = pagedResult.TotalCount,
+            Page = pagedResult.Page,
+            PageSize = pagedResult.PageSize
+        };
     }
 
     public async Task<bool> ChangeStatusAsync(int requestId, int userId)

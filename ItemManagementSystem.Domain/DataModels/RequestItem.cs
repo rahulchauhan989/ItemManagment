@@ -30,4 +30,6 @@ public class RequestItem
   [ForeignKey("ModifiedByUser")]
   public int? ModifiedBy { get; set; }
   public User? ModifiedByUser { get; set; }
+
+  public ICollection<ItemModel> ItemModels { get; set; } = new List<ItemModel>();
 }

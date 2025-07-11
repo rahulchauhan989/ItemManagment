@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace ItemManagementSystem.Api.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/user-item-requests")]
 public class UserItemRequestController : ControllerBase
 {
     private readonly IUserItemRequestService _service;
@@ -19,19 +19,9 @@ public class UserItemRequestController : ControllerBase
         _service = service;
     }
 
-    // [HttpPost]
-    // [Authorize]
-    // public async Task<ActionResult<ApiResponse>> CreateRequest([FromBody] CreateItemRequestDto dto)
-    // {
-    //     string? token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
-    //     int userId = _itemTypeService.ExtractUserIdFromToken(token);
-    //     var response = await _service.CreateRequestAsync(userId, dto);
-    //     return new ApiResponse(true,201,response,AppMessages.UserCreatedItemReq);
-    // }
-
     [HttpPost]
     [Authorize]
-    public async Task<ActionResult<ApiResponse>> CreateRequest([FromBody] CreateItemRequestDto dto)
+    public async Task<ActionResult<ApiResponse>> CreateUserItemRequest([FromBody] CreateItemRequestDto dto)
     {
         string? token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
         int userId = _itemTypeService.ExtractUserIdFromToken(token);
@@ -39,23 +29,24 @@ public class UserItemRequestController : ControllerBase
         return new ApiResponse(true, 201, response, AppMessages.UserCreatedItemReq);
     }
 
-    [HttpGet("my")]
-    [Authorize]
-    public async Task<ActionResult<ApiResponse>> GetMyRequests()
-    {
-        string? token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
-        int userId = _itemTypeService.ExtractUserIdFromToken(token);
-        var list = await _service.GetRequestsByUserAsync(userId);
-        return new ApiResponse(true, 200, list, AppMessages.GetMyRequests);
-    }
 
-    [HttpPatch("{requestId}/CancelMyRequest")]
+    [HttpGet("mine")]
     [Authorize]
-    public async Task<ActionResult<ApiResponse>> CancelMyRequest(int requestId)
+    public async Task<ActionResult<ApiResponse>> GetMyItemRequests([FromQuery] Domain.Dto.Request.ItemRequestFilterDto filter)
     {
         string? token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
         int userId = _itemTypeService.ExtractUserIdFromToken(token);
-        bool updated = await _service.ChangeStatusAsync(requestId, userId);
-        return new ApiResponse(true, 200, null, "Request status updated successfully.");
+        var pagedList = await _service.GetRequestsByUserPagedAsync(userId, filter);
+        return new ApiResponse(true, 200, pagedList, AppMessages.GetMyRequests);
+    }
+    
+    [HttpPatch("{requestId}/cancel")]
+    [Authorize]
+    public async Task<ActionResult<ApiResponse>> CancelItemRequest(int requestId)
+    {
+        string? token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+        int userId = _itemTypeService.ExtractUserIdFromToken(token);
+        await _service.ChangeStatusAsync(requestId, userId);
+        return new ApiResponse(true, 200, null, AppMessages.RequestCancelled);
     }
 }

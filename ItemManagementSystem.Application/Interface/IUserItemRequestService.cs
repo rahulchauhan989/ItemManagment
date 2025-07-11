@@ -1,10 +1,11 @@
 using ItemManagementSystem.Domain.Dto;
+using ItemManagementSystem.Domain.Dto.Request;
 
 namespace ItemManagementSystem.Application.Interface;
 
 public interface IUserItemRequestService
 {
     Task<ItemRequestResponseDto> CreateRequestAsync(int userId, CreateItemRequestDto dto);
-    Task<List<ItemRequestResponseDto>> GetRequestsByUserAsync(int userId);
     Task<bool> ChangeStatusAsync(int requestId, int userId);
+    Task<PagedResultDto<ItemRequestResponseDto>> GetRequestsByUserPagedAsync(int userId, Domain.Dto.Request.ItemRequestFilterDto filter);
 }

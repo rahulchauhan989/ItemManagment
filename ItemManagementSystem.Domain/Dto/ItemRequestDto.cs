@@ -11,6 +11,7 @@ namespace ItemManagementSystem.Domain.Dto
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
         public List<RequestItemDto>? Items { get; set; }
+        public string? Comment { get; set; }
     }
 
     public class RequestItemDto

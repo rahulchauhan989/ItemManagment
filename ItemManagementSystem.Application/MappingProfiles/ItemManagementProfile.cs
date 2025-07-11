@@ -16,8 +16,6 @@ public class ItemManagementProfile : Profile
     CreateMap<PurchaseRequest, PurchaseRequestDto>().ReverseMap();
     CreateMap<PurchaseRequest, PurchaseRequestCreateDto>().ReverseMap();
     CreateMap<PurchaseRequestItem, PurchaseRequestItemDto>().ReverseMap();
-    CreateMap<ItemRequest, ItemRequestDto>().ReverseMap();
-    // CreateMap<RequestItem, RequestItemDto>().ReverseMap(); 
     CreateMap<ItemRequest, ItemRequestDto>()
     .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.RequestItems));
 
@@ -33,7 +31,15 @@ public class ItemManagementProfile : Profile
             .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
             .ForMember(dest => dest.CreatedBy, opt => opt.Ignore());
 
-        CreateMap<ItemRequest, ItemRequestDto>()
+     CreateMap<ItemRequest, ItemRequestDto>()
             .ForMember(dest => dest.Items, opt => opt.Ignore());
+
+          CreateMap<RequestItem, RequestItemsDto>()
+            .ForMember(dest => dest.ItemModelName, opt => opt.MapFrom(src => src.ItemModel.Name))
+            .ForMember(dest => dest.ItemModelDescription, opt => opt.MapFrom(src => src.ItemModel.Description))
+            .ForMember(dest => dest.ItemTypeId, opt => opt.MapFrom(src => src.ItemModel.ItemTypeId))
+            .ForMember(dest => dest.ItemTypeName, opt => opt.MapFrom(src => src.ItemModel.ItemType.Name));
+        CreateMap<ItemRequest, ItemRequestDto>()
+            .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.RequestItems));       
   }
 }

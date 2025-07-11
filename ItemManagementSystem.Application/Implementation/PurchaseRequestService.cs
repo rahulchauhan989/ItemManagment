@@ -169,9 +169,6 @@ namespace ItemManagementSystem.Application.Implementation
             var query = await _purchaseRepo.GetAllAsync();
 
             // Filtering
-            if (!string.IsNullOrEmpty(filter.InvoiceNumber))
-                query = query.Where(x => x.InvoiceNumber == filter.InvoiceNumber);
-
             if (filter.CreatedBy.HasValue)
                 query = query.Where(x => x.CreatedBy == filter.CreatedBy);
 
@@ -179,7 +176,7 @@ namespace ItemManagementSystem.Application.Implementation
                 query = query.Where(x => x.Date.Date == filter.Date.Value.Date);
 
             // Sorting
-            if (filter.SortBy == "Date")
+            if (filter.OrderBy == "Date")
                 query = filter.SortDesc ? query.OrderByDescending(x => x.Date) : query.OrderBy(x => x.Date);
             else
                 query = query.OrderByDescending(x => x.CreatedAt);

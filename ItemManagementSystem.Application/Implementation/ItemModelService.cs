@@ -1,3 +1,4 @@
+using System.Linq.Expressions;
 using AutoMapper;
 using ItemManagementSystem.Application.Interface;
 using ItemManagementSystem.Domain.Constants;
@@ -79,6 +80,40 @@ namespace ItemManagementSystem.Application.Implementation
         {
             var entities = await _repo.GetAllAsync();
             return _mapper.Map<IEnumerable<ItemModelDto>>(entities);
+        }
+
+
+        public async Task<PagedResultDto<ItemModelDto>> GetPagedAsync(ItemModelFilterDto filter)
+        {
+            // Build filter expression
+            Expression<Func<ItemModel, bool>> predicate = x =>
+                string.IsNullOrEmpty(filter.SearchTerm) || x.Name.ToLower().Contains(filter.SearchTerm.ToLower());
+
+            // Build sorting
+            Func<IQueryable<ItemModel>, IOrderedQueryable<ItemModel>> orderBy;
+            switch (filter.OrderBy?.ToLower())
+            {
+                case "name":
+                    orderBy = q => filter.SortDesc ? q.OrderByDescending(x => x.Name) : q.OrderBy(x => x.Name);
+                    break;
+                case "createdat":
+                    orderBy = q => filter.SortDesc ? q.OrderByDescending(x => x.CreatedAt) : q.OrderBy(x => x.CreatedAt);
+                    break;
+                default:
+                    orderBy = q => filter.SortDesc ? q.OrderByDescending(x => x.Name) : q.OrderBy(x => x.Name);
+                    break;
+            }
+
+            var pagedResult = await _repo.GetPagedAsync(predicate, orderBy, filter.Page, filter.PageSize);
+
+            // Map entities to DTOs
+            return new PagedResultDto<ItemModelDto>
+            {
+                Items = _mapper.Map<List<ItemModelDto>>(pagedResult.Items),
+                TotalCount = pagedResult.TotalCount,
+                Page = pagedResult.Page,
+                PageSize = pagedResult.PageSize
+            };
         }
 
         public async Task<ItemModelDto> UpdateAsync(int id, ItemModelDto dto)

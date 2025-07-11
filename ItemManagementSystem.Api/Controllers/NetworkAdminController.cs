@@ -65,9 +65,9 @@ namespace ItemManagementSystem.Api.Controllers
         }
 
         [HttpGet("item-types")]
-        public async Task<ActionResult<ApiResponse>> GetAllItemTypes()
+        public async Task<ActionResult<ApiResponse>> GetItemTypes([FromQuery] ItemTypeFilterDto filter)
         {
-            var result = await _itemTypeService.GetAllAsync();
+            var result = await _itemTypeService.GetPagedItemTypesAsync(filter);
             return new ApiResponse(true, 200, result, AppMessages.ItemTypesRetrieved);
         }
 
@@ -104,21 +104,11 @@ namespace ItemManagementSystem.Api.Controllers
         }
 
         [HttpGet("item-models")]
-        public async Task<ActionResult<ApiResponse>> GetAllItemModels()
+        public async Task<ActionResult<ApiResponse>> GetAllItemModels([FromQuery] ItemModelFilterDto filter)
         {
-            var result = await _itemModelService.GetAllAsync();
+            var result = await _itemModelService.GetPagedAsync(filter);
             return new ApiResponse(true, 200, result, AppMessages.ItemModelsRetrieved);
         }
-
-        // [HttpPost("purchase-requests")]
-        // public async Task<ActionResult<ApiResponse>> CreatePurchaseRequest([FromBody] PurchaseRequestDto dto)
-        // {
-        //     string? token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
-        //     int userId = _itemTypeService.ExtractUserIdFromToken(token);
-        //     dto.CreatedBy = userId;
-        //     var result = await _purchaseRequestService.CreateAsync(dto);
-        //     return new ApiResponse(true, 201, result, AppMessages.PurchaseRequestCreated);
-        // }
 
         [HttpPost("purchase-requests")]
         public async Task<ActionResult<ApiResponse>> CreatePurchaseRequest([FromBody] PurchaseRequestCreateDto dto)
@@ -126,7 +116,7 @@ namespace ItemManagementSystem.Api.Controllers
             string? token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
             int userId = _itemTypeService.ExtractUserIdFromToken(token);
 
-            var result = await _purchaseRequestService.CreateAsync(dto,userId);
+            var result = await _purchaseRequestService.CreateAsync(dto, userId);
             return new ApiResponse(true, 201, result, AppMessages.PurchaseRequestCreated);
         }
 
