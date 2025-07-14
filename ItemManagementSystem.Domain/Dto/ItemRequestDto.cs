@@ -6,6 +6,9 @@ namespace ItemManagementSystem.Domain.Dto
     {
         public int Id { get; set; }
         public string? RequestNumber { get; set; }
+        public string? UserName { get; set; }
+
+        public string? ItemTypeName { get; set; }
         public int UserId { get; set; }
         public string? Status { get; set; }
         public DateTime CreatedAt { get; set; }

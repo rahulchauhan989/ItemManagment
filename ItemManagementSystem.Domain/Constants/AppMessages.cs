@@ -53,4 +53,8 @@ public static class AppMessages
 
     public const string RejectRequest = "Only Pending requests can be approved or rejected.";
 
+    public const string InvalidReturnItems = "Return request items cannot be null or empty.";
+
+    public const string ReturnRequestNotFound = "Return request not found.";
+
 }

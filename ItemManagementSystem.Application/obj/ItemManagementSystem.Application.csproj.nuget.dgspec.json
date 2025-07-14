@@ -26,8 +26,8 @@
           "net7.0": {
             "targetAlias": "net7.0",
             "projectReferences": {
-              "D:\\ItemManagementSystem\\ItemManagementSystem.Domain\\ItemManagementSystem.Domain.csproj": {
-                "projectPath": "D:\\ItemManagementSystem\\ItemManagementSystem.Domain\\ItemManagementSystem.Domain.csproj"
+              "d:\\ItemManagementSystem\\ItemManagementSystem.Domain\\ItemManagementSystem.Domain.csproj": {
+                "projectPath": "d:\\ItemManagementSystem\\ItemManagementSystem.Domain\\ItemManagementSystem.Domain.csproj"
               },
               "d:\\ItemManagementSystem\\ItemManagementSystem.Infrastructure\\ItemManagementSystem.Infrastructure.csproj": {
                 "projectPath": "d:\\ItemManagementSystem\\ItemManagementSystem.Infrastructure\\ItemManagementSystem.Infrastructure.csproj"
@@ -102,14 +102,14 @@
         }
       }
     },
-    "D:\\ItemManagementSystem\\ItemManagementSystem.Domain\\ItemManagementSystem.Domain.csproj": {
+    "d:\\ItemManagementSystem\\ItemManagementSystem.Domain\\ItemManagementSystem.Domain.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\ItemManagementSystem\\ItemManagementSystem.Domain\\ItemManagementSystem.Domain.csproj",
+        "projectUniqueName": "d:\\ItemManagementSystem\\ItemManagementSystem.Domain\\ItemManagementSystem.Domain.csproj",
         "projectName": "ItemManagementSystem.Domain",
-        "projectPath": "D:\\ItemManagementSystem\\ItemManagementSystem.Domain\\ItemManagementSystem.Domain.csproj",
+        "projectPath": "d:\\ItemManagementSystem\\ItemManagementSystem.Domain\\ItemManagementSystem.Domain.csproj",
         "packagesPath": "C:\\Users\\pca88\\.nuget\\packages\\",
-        "outputPath": "D:\\ItemManagementSystem\\ItemManagementSystem.Domain\\obj\\",
+        "outputPath": "d:\\ItemManagementSystem\\ItemManagementSystem.Domain\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\pca88\\AppData\\Roaming\\NuGet\\NuGet.Config"
@@ -203,8 +203,8 @@
           "net7.0": {
             "targetAlias": "net7.0",
             "projectReferences": {
-              "D:\\ItemManagementSystem\\ItemManagementSystem.Domain\\ItemManagementSystem.Domain.csproj": {
-                "projectPath": "D:\\ItemManagementSystem\\ItemManagementSystem.Domain\\ItemManagementSystem.Domain.csproj"
+              "d:\\ItemManagementSystem\\ItemManagementSystem.Domain\\ItemManagementSystem.Domain.csproj": {
+                "projectPath": "d:\\ItemManagementSystem\\ItemManagementSystem.Domain\\ItemManagementSystem.Domain.csproj"
               }
             }
           }

@@ -187,7 +187,7 @@ namespace ItemManagementSystem.Application.Implementation
             // Now check if any of their ItemRequest.Status == "pending"
             foreach (var requestItem in requestItems)
             {
-                var itemRequest = await _itemRequestRepo.GetByIdAsync(requestItem.RequestId);
+                var itemRequest = await _itemRequestRepo.GetByIdAsync(requestItem.ItemRequestId);
                 if (itemRequest != null && itemRequest.Status == "Pending")
                 {
                     throw new CustomException(AppMessages.ItemModelHasAssociatedRequests);

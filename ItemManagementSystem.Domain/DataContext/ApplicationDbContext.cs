@@ -157,7 +157,7 @@ public class ApplicationDbContext : DbContext
         modelBuilder.Entity<RequestItem>()
             .HasOne(ri => ri.ItemRequest)
             .WithMany()
-            .HasForeignKey(ri => ri.RequestId);
+            .HasForeignKey(ri => ri.ItemRequestId);
 
         modelBuilder.Entity<RequestItem>()
             .HasOne(ri => ri.ItemModel)

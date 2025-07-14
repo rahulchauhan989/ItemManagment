@@ -10,7 +10,7 @@ public class ItemManagementProfile : Profile
   public ItemManagementProfile()
   {
     CreateMap<ItemType, ItemTypeDto>().ReverseMap();
-    CreateMap<ItemType,ItemTypeCreateRequest>().ReverseMap();
+    CreateMap<ItemType, ItemTypeCreateRequest>().ReverseMap();
     CreateMap<ItemModel, ItemModelDto>().ReverseMap();
     CreateMap<ItemModel, ItemModelCreateDto>().ReverseMap();
     CreateMap<PurchaseRequest, PurchaseRequestDto>().ReverseMap();
@@ -23,23 +23,26 @@ public class ItemManagementProfile : Profile
     .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
     .ForMember(dest => dest.CreatedBy, opt => opt.Ignore())
     .ForMember(dest => dest.PurchaseRequestId, opt => opt.Ignore())
-    .ForMember(dest => dest.IsDeleted, opt => opt.Ignore());  
+    .ForMember(dest => dest.IsDeleted, opt => opt.Ignore());
 
-     CreateMap<RequestItemDto, RequestItem>()
-            .ForMember(dest => dest.Id, opt => opt.Ignore())
-            .ForMember(dest => dest.RequestId, opt => opt.Ignore())
-            .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
-            .ForMember(dest => dest.CreatedBy, opt => opt.Ignore());
+    CreateMap<RequestItemDto, RequestItem>()
+           .ForMember(dest => dest.Id, opt => opt.Ignore())
+           .ForMember(dest => dest.ItemRequestId, opt => opt.Ignore())
+           .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
+           .ForMember(dest => dest.CreatedBy, opt => opt.Ignore());
 
-     CreateMap<ItemRequest, ItemRequestDto>()
-            .ForMember(dest => dest.Items, opt => opt.Ignore());
+    CreateMap<ItemRequest, ItemRequestDto>()
+           .ForMember(dest => dest.Items, opt => opt.Ignore());
 
-          CreateMap<RequestItem, RequestItemsDto>()
-            .ForMember(dest => dest.ItemModelName, opt => opt.MapFrom(src => src.ItemModel.Name))
-            .ForMember(dest => dest.ItemModelDescription, opt => opt.MapFrom(src => src.ItemModel.Description))
-            .ForMember(dest => dest.ItemTypeId, opt => opt.MapFrom(src => src.ItemModel.ItemTypeId))
-            .ForMember(dest => dest.ItemTypeName, opt => opt.MapFrom(src => src.ItemModel.ItemType.Name));
-        CreateMap<ItemRequest, ItemRequestDto>()
-            .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.RequestItems));       
+    CreateMap<RequestItem, RequestItemsDto>()
+      .ForMember(dest => dest.ItemModelName, opt => opt.MapFrom(src => src.ItemModel.Name))
+      .ForMember(dest => dest.ItemModelDescription, opt => opt.MapFrom(src => src.ItemModel.Description))
+      .ForMember(dest => dest.ItemTypeId, opt => opt.MapFrom(src => src.ItemModel.ItemTypeId))
+      .ForMember(dest => dest.ItemTypeName, opt => opt.MapFrom(src => src.ItemModel.ItemType.Name));
+    CreateMap<ItemRequest, ItemRequestDto>()
+        .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.RequestItems));
+
+    CreateMap<ReturnRequest, ReturnRequestDto>().ReverseMap();
+    CreateMap<ReturnRequestItem, ReturnRequestItemDto>().ReverseMap();
   }
 }

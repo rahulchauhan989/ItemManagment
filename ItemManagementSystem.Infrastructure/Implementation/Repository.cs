@@ -59,10 +59,15 @@ public class Repository<T> : IRepository<T> where T : class
         }
     }
 
-    public async Task<IEnumerable<T>> FindIncludingAsync(Expression<Func<T, bool>> predicate, params Expression<Func<T, object>>[] includeProperties)
+    public async Task<IEnumerable<T>> FindIncludingAsync(Expression<Func<T, bool>> predicate, Expression<Func<T, object>>[]? includes = null)
     {
-        IQueryable<T> query = _entities;
-        foreach (var includeProperty in includeProperties)
+        IQueryable<T> query = _entities.AsQueryable();
+        if (includes != null && includes.Length > 0)
+        {
+            foreach (var includeProperty in includes)
+                query = query.Include(includeProperty);
+        }
+        foreach (var includeProperty in includes)
             query = query.Include(includeProperty);
 
         // Soft delete support
@@ -103,37 +108,6 @@ public class Repository<T> : IRepository<T> where T : class
             PageSize = pageSize
         };
     }
-
-    // public async Task<PagedResultDto<ItemRequest>> GetPagedAsync(
-    // Expression<Func<ItemRequest, bool>> filter,
-    // Func<IQueryable<ItemRequest>, IOrderedQueryable<ItemRequest>> orderBy,
-    // int page,
-    // int pageSize)
-    // {
-    //     IQueryable<ItemRequest> query = _context.ItemRequests
-    //         .Where(filter)
-    //         .Include(r => r.RequestItems)
-    //             .ThenInclude(ri => ri.ItemModel)
-    //                 .ThenInclude(im => im.ItemType)
-    //         .Include(r => r.User);
-
-    //     var totalCount = await query.CountAsync();
-    //     var items = await orderBy(query)
-    //         .Skip((page - 1) * pageSize)
-    //         .Take(pageSize)
-    //         .ToListAsync();
-
-    //     return new PagedResultDto<ItemRequest>
-    //     {
-    //         Items = items,
-    //         TotalCount = totalCount,
-    //         Page = page,
-    //         PageSize = pageSize
-    //     };
-    // }
-
-
-
 
     public async Task<PagedResultDto<T>> GetPagedAsyncWithIncludes(
     Expression<Func<T, bool>> filter,

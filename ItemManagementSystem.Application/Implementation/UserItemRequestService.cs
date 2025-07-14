@@ -101,7 +101,7 @@ public class UserItemRequestService : IUserItemRequestService
             .Select(dtoItem =>
             {
                 var entityItem = _mapper.Map<RequestItem>(dtoItem);
-                entityItem.RequestId = entity.Id;
+                entityItem.ItemRequestId = entity.Id;
                 entityItem.CreatedBy = userId;
                 entityItem.CreatedAt = DateTime.UtcNow;
                 return entityItem;
@@ -134,7 +134,7 @@ public class UserItemRequestService : IUserItemRequestService
             r.UserId == userId &&
             !r.IsDeleted &&
             (string.IsNullOrEmpty(filter.Status) || r.Status == filter.Status) &&
-            (string.IsNullOrEmpty(filter.SearchTerm) || r.RequestNumber.Contains(filter.SearchTerm));
+            (string.IsNullOrEmpty(filter.SearchTerm) || r.RequestNumber!=null && r.RequestNumber.Contains(filter.SearchTerm));
 
         // Build sorting
         Func<IQueryable<ItemRequest>, IOrderedQueryable<ItemRequest>> orderBy;
@@ -157,11 +157,11 @@ public class UserItemRequestService : IUserItemRequestService
         var resultItems = new List<ItemRequestResponseDto>();
         foreach (var r in pagedResult.Items)
         {
-            var items = await _requestItemRepo.FindAsync(i => i.RequestId == r.Id && !i.IsDeleted);
+            var items = await _requestItemRepo.FindAsync(i => i.ItemRequestId == r.Id && !i.IsDeleted);
             resultItems.Add(new ItemRequestResponseDto
             {
                 Id = r.Id,
-                RequestNumber = r.RequestNumber,
+                RequestNumber = r.RequestNumber!,
                 Status = r.Status!,
                 CreatedAt = r.CreatedAt,
                 Items = items.Select(i => new RequestItemDto

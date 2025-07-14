@@ -9,7 +9,7 @@ public class RequestItem
   public int Id { get; set; }
 
   [ForeignKey("ItemRequest")]
-  public int RequestId { get; set; }
+  public int ItemRequestId { get; set; }
   public ItemRequest ItemRequest { get; set; } = null!;
 
   [ForeignKey("ItemModel")]

@@ -18,68 +18,76 @@ namespace ItemManagementSystem.Application.Implementation
         private readonly IRepository<ItemRequest> _itemRequestRepo;
         private readonly IRepository<RequestItem> _requestItemRepo;
         private readonly IRepository<ItemModel> _itemModelRepo;
-        private readonly ApplicationDbContext _context;
         private readonly IMapper _mapper;
+        private readonly IRepository<User> _userRepo;
 
         public ItemRequestService(
             IRepository<ItemRequest> itemRequestRepo,
             IRepository<RequestItem> requestItemRepo,
             IRepository<ItemModel> itemModelRepo,
             IMapper mapper,
-            ApplicationDbContext context)
+            IRepository<User> userRepo)
         {
             _itemRequestRepo = itemRequestRepo;
             _requestItemRepo = requestItemRepo;
             _itemModelRepo = itemModelRepo;
             _mapper = mapper;
-            _context = context;
+            _userRepo = userRepo;
         }
         public async Task<PagedResultDto<ItemRequestDto>> GetRequestsAsync(ItemsRequestFilterDto filter)
         {
             Expression<Func<ItemRequest, bool>> predicate = r =>
-                !r.IsDeleted &&
-                (string.IsNullOrEmpty(filter.RequestNumber) || r.RequestNumber == filter.RequestNumber) &&
-                (string.IsNullOrEmpty(filter.UserName) || (r.User != null && r.User.Name.Contains(filter.UserName)));
+            !r.IsDeleted &&
+            (string.IsNullOrEmpty(filter.RequestNumber) || r.RequestNumber == filter.RequestNumber) &&
+            (string.IsNullOrEmpty(filter.UserName) || (r.User != null && r.User.Name.Contains(filter.UserName)));
 
-            Func<IQueryable<ItemRequest>, IOrderedQueryable<ItemRequest>> orderBy;
-            switch (filter.SortBy?.ToLower())
+            Func<IQueryable<ItemRequest>, IOrderedQueryable<ItemRequest>> orderBy = filter.SortBy?.ToLower() switch
             {
-                case "requestnumber":
-                    orderBy = q => filter.SortDesc ? q.OrderByDescending(x => x.RequestNumber) : q.OrderBy(x => x.RequestNumber);
-                    break;
-                case "username":
-                    orderBy = q => filter.SortDesc ? q.OrderByDescending(x => x.User.Name) : q.OrderBy(x => x.User.Name);
-                    break;
-                default:
-                    orderBy = q => filter.SortDesc ? q.OrderByDescending(x => x.CreatedAt) : q.OrderBy(x => x.CreatedAt);
-                    break;
+                "requestnumber" => q => filter.SortDesc ? q.OrderByDescending(x => x.RequestNumber) : q.OrderBy(x => x.RequestNumber),
+                "username" => q => filter.SortDesc ? q.OrderByDescending(x => x.User.Name) : q.OrderBy(x => x.User.Name),
+                _ => q => filter.SortDesc ? q.OrderByDescending(x => x.CreatedAt) : q.OrderBy(x => x.CreatedAt)
+            };
+
+            var paged = await _itemRequestRepo.GetPagedAsync(predicate, orderBy, filter.Page, filter.PageSize);
+
+            var result = new List<ItemRequestDto>();
+
+            foreach (var entity in paged.Items)
+            {
+                var items = await _requestItemRepo.FindAsync(i => i.ItemRequestId == entity.Id && !i.IsDeleted);
+                var itemDtos = items.Select(i => new RequestItemDto
+                {
+                    ItemModelId = i.ItemModelId,
+                    Quantity = i.Quantity,
+                }).ToList();
+
+                var user = (await _userRepo.FindAsync(u => u.Id == entity.UserId && u.Active)).FirstOrDefault();
+                if (user == null)
+                    throw new NullObjectException(AppMessages.UserNotFound);
+
+                result.Add(new ItemRequestDto
+                {
+                    Id = entity.Id,
+
+                    RequestNumber = entity.RequestNumber!,
+                    Status = entity.Status!,
+                    CreatedAt = entity.CreatedAt,
+                    UserId = entity.UserId,
+                    UserName = user.Name,
+                    Items = itemDtos
+                });
             }
-
-            // Build query with proper Includes/ThenIncludes
-            IQueryable<ItemRequest> query = _context.ItemRequests
-                .Where(predicate)
-                .Include(r => r.RequestItems)
-                    .ThenInclude(ri => ri.ItemModel)
-                        .ThenInclude(im => im.ItemType);
-
-            var totalCount = await query.CountAsync();
-            var items = await orderBy(query)
-                .Skip((filter.Page - 1) * filter.PageSize)
-                .Take(filter.PageSize)
-                .ToListAsync();
-
-            var mapped = _mapper.Map<List<ItemRequestDto>>(items);
 
             return new PagedResultDto<ItemRequestDto>
             {
-                Items = mapped,
-                TotalCount = totalCount,
-                Page = filter.Page,
-                PageSize = filter.PageSize
+                Items = result,
+                TotalCount = paged.TotalCount,
+                Page = paged.Page,
+                PageSize = paged.PageSize
             };
         }
 
-     
+
         public async Task ChangeRequestStatusAsync(int id, string status, string? comment, int userId)
         {
             var request = await _itemRequestRepo.GetByIdAsync(id);
@@ -99,7 +107,7 @@ namespace ItemManagementSystem.Application.Implementation
 
             if (status == "Approved")
             {
-                var requestItems = await _requestItemRepo.FindAsync(x => x.RequestId == id && !x.IsDeleted);
+                var requestItems = await _requestItemRepo.FindAsync(x => x.ItemRequestId == id && !x.IsDeleted);
                 foreach (var item in requestItems)
                 {
                     var itemModel = await _itemModelRepo.GetByIdAsync(item.ItemModelId);

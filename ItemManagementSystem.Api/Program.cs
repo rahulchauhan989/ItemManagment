@@ -27,6 +27,7 @@ builder.Services.AddAutoMapper(typeof(ItemManagementSystem.Application.MappingPr
 builder.Services.AddScoped<IPurchaseRequestService,PurchaseRequestService>();
 builder.Services.AddScoped<IItemRequestService, ItemRequestService>();
 builder.Services.AddScoped<IUserItemRequestService, UserItemRequestService>();
+builder.Services.AddScoped<IReturnRequestService, ReturnRequestService>();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
