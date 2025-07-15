@@ -39,6 +39,16 @@ public class UserItemRequestController : ControllerBase
         var pagedList = await _service.GetRequestsByUserPagedAsync(userId, filter);
         return new ApiResponse(true, 200, pagedList, AppMessages.GetMyRequests);
     }
+
+    [HttpPost("mine")]
+    [Authorize]
+    public async Task<ActionResult<ApiResponse>> GetMyItemRequestsPost([FromBody] Domain.Dto.Request.ItemRequestFilterDto filter)
+    {
+        string? token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+        int userId = _itemTypeService.ExtractUserIdFromToken(token);
+        var pagedList = await _service.GetRequestsByUserPagedAsync(userId, filter);
+        return new ApiResponse(true, 200, pagedList, AppMessages.GetMyRequests);
+    }
     
     [HttpPatch("{requestId}/cancel")]
     [Authorize]

@@ -17,11 +17,8 @@ public class ReturnRequestItem
     public ItemModel ItemModel { get; set; } = null!;
 
     public int Quantity { get; set; }
-        public bool IsDeleted { get; set; } = false;
-
-
+    public bool IsDeleted { get; set; } = false;
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-
     public DateTime? UpdatedAt { get; set; }
 
     [ForeignKey("CreatedByUser")]

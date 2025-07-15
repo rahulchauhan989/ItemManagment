@@ -100,8 +100,8 @@ public class ReturnRequestService : IReturnRequestService
 
         Func<IQueryable<ReturnRequest>, IOrderedQueryable<ReturnRequest>> orderBy = filter.SortBy?.ToLower() switch
         {
-            "status" => q => filter.SortDesc ? q.OrderByDescending(x => x.Status) : q.OrderBy(x => x.Status),
-            _ => q => filter.SortDesc ? q.OrderByDescending(x => x.CreatedAt) : q.OrderBy(x => x.CreatedAt)
+            "status" => q => filter.SortDirection == "desc" ? q.OrderByDescending(x => x.Status) : q.OrderBy(x => x.Status),
+            _ => q => filter.SortDirection == "desc" ? q.OrderByDescending(x => x.CreatedAt) : q.OrderBy(x => x.CreatedAt)
         };
 
         var paged = await _returnRequestRepo.GetPagedAsync(predicate, orderBy, filter.Page, filter.PageSize);
@@ -181,8 +181,8 @@ public class ReturnRequestService : IReturnRequestService
 
         Func<IQueryable<ReturnRequest>, IOrderedQueryable<ReturnRequest>> orderBy = filter.SortBy?.ToLower() switch
         {
-            "status" => q => filter.SortDesc ? q.OrderByDescending(x => x.Status) : q.OrderBy(x => x.Status),
-            _ => q => filter.SortDesc ? q.OrderByDescending(x => x.CreatedAt) : q.OrderBy(x => x.CreatedAt)
+            "status" => q => filter.SortDirection == "desc" ? q.OrderByDescending(x => x.Status) : q.OrderBy(x => x.Status),
+            _ => q => filter.SortDirection == "desc" ? q.OrderByDescending(x => x.CreatedAt) : q.OrderBy(x => x.CreatedAt)
         };
 
         var paged = await _returnRequestRepo.GetPagedAsync(predicate, orderBy, filter.Page, filter.PageSize);

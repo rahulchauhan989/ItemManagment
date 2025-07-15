@@ -43,9 +43,9 @@ namespace ItemManagementSystem.Application.Implementation
 
             Func<IQueryable<ItemRequest>, IOrderedQueryable<ItemRequest>> orderBy = filter.SortBy?.ToLower() switch
             {
-                "requestnumber" => q => filter.SortDesc ? q.OrderByDescending(x => x.RequestNumber) : q.OrderBy(x => x.RequestNumber),
-                "username" => q => filter.SortDesc ? q.OrderByDescending(x => x.User.Name) : q.OrderBy(x => x.User.Name),
-                _ => q => filter.SortDesc ? q.OrderByDescending(x => x.CreatedAt) : q.OrderBy(x => x.CreatedAt)
+                "requestnumber" => q => filter.SortDirection == "desc" ? q.OrderByDescending(x => x.RequestNumber) : q.OrderBy(x => x.RequestNumber),
+                "username" => q => filter.SortDirection == "desc" ? q.OrderByDescending(x => x.User.Name) : q.OrderBy(x => x.User.Name),
+                _ => q => filter.SortDirection == "desc" ? q.OrderByDescending(x => x.CreatedAt) : q.OrderBy(x => x.CreatedAt)
             };
 
             var paged = await _itemRequestRepo.GetPagedAsync(predicate, orderBy, filter.Page, filter.PageSize);
@@ -68,7 +68,6 @@ namespace ItemManagementSystem.Application.Implementation
                 result.Add(new ItemRequestDto
                 {
                     Id = entity.Id,
-
                     RequestNumber = entity.RequestNumber!,
                     Status = entity.Status!,
                     CreatedAt = entity.CreatedAt,

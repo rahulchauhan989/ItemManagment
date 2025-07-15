@@ -80,11 +80,18 @@ namespace ItemManagementSystem.Api.Controllers
             return new ApiResponse(true, 201, result, AppMessages.ItemModelCreated);
         }
 
-        [HttpGet("item-models/{id}")]
-        public async Task<ActionResult<ApiResponse>> GetItemModel(int id)
+        // [HttpGet("item-models/{id}")]
+        // public async Task<ActionResult<ApiResponse>> GetItemModel(int id)
+        // {
+        //     var result = await _itemModelService.GetByIdAsync(id);
+        //     return new ApiResponse(true, 200, result, AppMessages.ItemModelsRetrieved);
+        // }
+
+        [HttpPost("item-types/search")]
+        public async Task<ActionResult<ApiResponse>> FilterItemTypes([FromBody] ItemTypeFilterDto filter)
         {
-            var result = await _itemModelService.GetByIdAsync(id);
-            return new ApiResponse(true, 200, result, AppMessages.ItemModelsRetrieved);
+            var result = await _itemTypeService.GetPagedItemTypesAsync(filter);
+            return new ApiResponse(true, 200, result, AppMessages.ItemTypesRetrieved);
         }
 
         [HttpPut("item-models/{id}")]
@@ -103,8 +110,15 @@ namespace ItemManagementSystem.Api.Controllers
             return new ApiResponse(true, 204, null, AppMessages.ItemModelDeleted);
         }
 
-        [HttpGet("item-models")]
-        public async Task<ActionResult<ApiResponse>> GetAllItemModels([FromQuery] ItemModelFilterDto filter)
+        // [HttpGet("item-models")]
+        // public async Task<ActionResult<ApiResponse>> GetAllItemModels([FromQuery] ItemModelFilterDto filter)
+        // {
+        //     var result = await _itemModelService.GetPagedAsync(filter);
+        //     return new ApiResponse(true, 200, result, AppMessages.ItemModelsRetrieved);
+        // }
+
+        [HttpPost("item-models/search")]
+        public async Task<ActionResult<ApiResponse>> FilterItemModels([FromBody] ItemModelFilterDto filter)
         {
             var result = await _itemModelService.GetPagedAsync(filter);
             return new ApiResponse(true, 200, result, AppMessages.ItemModelsRetrieved);
@@ -134,29 +148,13 @@ namespace ItemManagementSystem.Api.Controllers
             return new ApiResponse(true, 200, result, AppMessages.PurchaseRequestsRetrieved);
         }
 
+        [HttpPost("purchase-requests/search")]
+        public async Task<ActionResult<ApiResponse>> FilterPurchaseRequests([FromBody] PurchaseRequestFilterDto filter)
+        {
+            var result = await _purchaseRequestService.GetAllAsync(filter);
+            return new ApiResponse(true, 200, result, AppMessages.PurchaseRequestsRetrieved);
+        }
 
 
-        // // ------------------ RETURN REQUEST MANAGEMENT ------------------
-
-        // [HttpGet("return-requests/pending")]
-        // public async Task<IActionResult> GetPendingReturnRequests([FromQuery] ReturnRequestFilterDto filter)
-        // {
-        //     var result = await _returnRequestService.GetPendingRequestsAsync(filter);
-        //     return Ok(result);
-        // }
-
-        // [HttpPost("return-requests/{id}/approve")]
-        // public async Task<IActionResult> ApproveReturnRequest(int id, [FromBody] ApproveRequestDto dto)
-        // {
-        //     await _returnRequestService.ApproveRequestAsync(id, dto.Comment);
-        //     return Ok();
-        // }
-
-        // [HttpPost("return-requests/{id}/reject")]
-        // public async Task<IActionResult> RejectReturnRequest(int id, [FromBody] RejectRequestDto dto)
-        // {
-        //     await _returnRequestService.RejectRequestAsync(id, dto.Comment);
-        //     return Ok();
-        // }
     }
 }

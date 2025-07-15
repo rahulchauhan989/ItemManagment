@@ -28,6 +28,13 @@ namespace ItemManagementSystem.Api.Controllers
             return new ApiResponse(true, 200, result, AppMessages.ItemRequestItemsRetrieved);
         }
 
+        [HttpPost("requests")]
+        public async Task<ActionResult<ApiResponse>> GetItemRequestsPost([FromBody] ItemsRequestFilterDto filter)
+        {
+            var result = await _itemRequestService.GetRequestsAsync(filter);
+            return new ApiResponse(true, 200, result, AppMessages.ItemRequestItemsRetrieved);
+        }
+
         [HttpPost("{id}/status")]
         public async Task<ActionResult<ApiResponse>> ChangeItemRequestStatus(int id, [FromBody] ChangeStatusDto dto)
         {

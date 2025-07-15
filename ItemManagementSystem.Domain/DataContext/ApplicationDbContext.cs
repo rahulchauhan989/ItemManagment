@@ -178,5 +178,140 @@ public class ApplicationDbContext : DbContext
             .HasOne(rri => rri.ItemModel)
             .WithMany()
             .HasForeignKey(rri => rri.ItemModelId);
+
+        // Table renaming using Fluent API
+        modelBuilder.Entity<RequestItem>(entity =>
+        {
+            entity.ToTable("request_item_details");
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.ItemRequestId).HasColumnName("item_request_id");
+            entity.Property(e => e.ItemModelId).HasColumnName("item_model_id");
+            entity.Property(e => e.Quantity).HasColumnName("quantity");
+            entity.Property(e => e.IsDeleted).HasColumnName("is_deleted");
+            entity.Property(e => e.CreatedAt).HasColumnName("created_at");
+            entity.Property(e => e.UpdatedAt).HasColumnName("updated_at");
+            entity.Property(e => e.CreatedBy).HasColumnName("created_by");
+            entity.Property(e => e.ModifiedBy).HasColumnName("modified_by");
+        });
+
+        modelBuilder.Entity<ReturnRequestItem>(entity =>
+        {
+            entity.ToTable("return_request_item_details");
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.ReturnRequestId).HasColumnName("return_request_id");
+            entity.Property(e => e.ItemModelId).HasColumnName("item_model_id");
+            entity.Property(e => e.Quantity).HasColumnName("quantity");
+            entity.Property(e => e.IsDeleted).HasColumnName("is_deleted");
+            entity.Property(e => e.CreatedAt).HasColumnName("created_at");
+            entity.Property(e => e.UpdatedAt).HasColumnName("updated_at");
+            entity.Property(e => e.CreatedBy).HasColumnName("created_by");
+            entity.Property(e => e.ModifiedBy).HasColumnName("modified_by");
+        });
+
+        modelBuilder.Entity<PurchaseRequestItem>(entity =>
+        {
+            entity.ToTable("purchase_request_item_details");
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.PurchaseRequestId).HasColumnName("purchase_request_id");
+            entity.Property(e => e.ItemModelId).HasColumnName("item_model_id");
+            entity.Property(e => e.Quantity).HasColumnName("quantity");
+            entity.Property(e => e.IsDeleted).HasColumnName("is_deleted");
+            entity.Property(e => e.CreatedAt).HasColumnName("created_at");
+            entity.Property(e => e.CreatedBy).HasColumnName("created_by");
+        });
+
+        modelBuilder.Entity<ItemRequest>(entity =>
+        {
+            entity.ToTable("request_item_records");
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.RequestNumber).HasColumnName("request_number");
+            entity.Property(e => e.UserId).HasColumnName("user_id");
+            entity.Property(e => e.Status).HasColumnName("status");
+            entity.Property(e => e.IsDeleted).HasColumnName("is_deleted");
+            entity.Property(e => e.Comment).HasColumnName("comment");
+            entity.Property(e => e.CreatedAt).HasColumnName("created_at");
+            entity.Property(e => e.UpdatedAt).HasColumnName("updated_at");
+            entity.Property(e => e.CreatedBy).HasColumnName("created_by");
+            entity.Property(e => e.ModifiedBy).HasColumnName("modified_by");
+        });
+
+        modelBuilder.Entity<ReturnRequest>(entity =>
+        {
+            entity.ToTable("return_request_records");
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.ReturnRequestNumber).HasColumnName("return_request_number");
+            entity.Property(e => e.UserId).HasColumnName("user_id");
+            entity.Property(e => e.Status).HasColumnName("status");
+            entity.Property(e => e.IsDeleted).HasColumnName("is_deleted");
+            entity.Property(e => e.CreatedAt).HasColumnName("created_at");
+            entity.Property(e => e.UpdatedAt).HasColumnName("updated_at");
+            entity.Property(e => e.CreatedBy).HasColumnName("created_by");
+            entity.Property(e => e.ModifiedBy).HasColumnName("modified_by");
+        });
+
+        modelBuilder.Entity<PurchaseRequest>(entity =>
+        {
+            entity.ToTable("purchase_request_records");
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.Date).HasColumnName("date");
+            entity.Property(e => e.InvoiceNumber).HasColumnName("invoice_number");
+            entity.Property(e => e.IsDeleted).HasColumnName("is_deleted");
+            entity.Property(e => e.CreatedBy).HasColumnName("created_by");
+            // entity.Property(e => e.User).HasColumnName("user");
+            entity.Property(e => e.CreatedAt).HasColumnName("created_at");
+            entity.Property(e => e.UpdatedAt).HasColumnName("updated_at");
+            entity.Property(e => e.ModifiedBy).HasColumnName("modified_by");
+        });
+
+        modelBuilder.Entity<User>(entity =>
+        {
+            entity.ToTable("users");
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.Name).HasColumnName("name");
+            entity.Property(e => e.Email).HasColumnName("email");
+            entity.Property(e => e.Password).HasColumnName("password");
+            entity.Property(e => e.RoleId).HasColumnName("role_id");
+            entity.Property(e => e.Active).HasColumnName("active");
+            entity.Property(e => e.CreatedAt).HasColumnName("created_at");
+            entity.Property(e => e.UpdatedAt).HasColumnName("updated_at");
+            entity.Property(e => e.IsDeleted).HasColumnName("is_deleted");
+        });
+
+        modelBuilder.Entity<Role>(entity =>
+        {
+            entity.ToTable("roles");
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.Name).HasColumnName("name");
+            entity.Property(e => e.IsDeleted).HasColumnName("is_deleted");
+            entity.Property(e => e.CreatedAt).HasColumnName("created_at");
+            entity.Property(e => e.UpdatedAt).HasColumnName("updated_at");
+        }); 
+
+        modelBuilder.Entity<ItemModel>(entity =>
+        {
+            entity.ToTable("item_models");
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.Name).HasColumnName("name");
+            entity.Property(e => e.Description).HasColumnName("description");
+            entity.Property(e => e.ItemTypeId).HasColumnName("item_type_id");
+            entity.Property(e => e.IsDeleted).HasColumnName("is_deleted");
+            entity.Property(e => e.CreatedAt).HasColumnName("created_at");
+            entity.Property(e => e.UpdatedAt).HasColumnName("updated_at");
+            entity.Property(e => e.CreatedBy).HasColumnName("created_by");
+            entity.Property(e => e.ModifiedBy).HasColumnName("modified_by");
+        });
+
+        modelBuilder.Entity<ItemType>(entity =>
+        {
+            entity.ToTable("item_types");
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.Name).HasColumnName("name");
+            entity.Property(e => e.Description).HasColumnName("description");
+            entity.Property(e => e.IsDeleted).HasColumnName("is_deleted");
+            entity.Property(e => e.CreatedAt).HasColumnName("created_at");
+            entity.Property(e => e.UpdatedAt).HasColumnName("updated_at");
+            entity.Property(e => e.CreatedBy).HasColumnName("created_by");
+            entity.Property(e => e.ModifiedBy).HasColumnName("modified_by");
+        });
     }
 }

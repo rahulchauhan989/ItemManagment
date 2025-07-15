@@ -37,7 +37,7 @@ public class Repository<T> : IRepository<T> where T : class
 
     public async Task UpdateAsync(T entity)
     {
-        _entities.Update(entity);
+         _entities.Update(entity);
         await _context.SaveChangesAsync();
     }
 
@@ -67,8 +67,6 @@ public class Repository<T> : IRepository<T> where T : class
             foreach (var includeProperty in includes)
                 query = query.Include(includeProperty);
         }
-        foreach (var includeProperty in includes)
-            query = query.Include(includeProperty);
 
         // Soft delete support
         var param = Expression.Parameter(typeof(T), "e");
@@ -134,33 +132,4 @@ public class Repository<T> : IRepository<T> where T : class
             PageSize = pageSize
         };
     }
-
-    // public async Task<PagedResultDto<ItemRequest>> GetPagedRequestsWithItemsAsync(
-    //     Expression<Func<ItemRequest, bool>> filter,
-    //     Func<IQueryable<ItemRequest>, IOrderedQueryable<ItemRequest>> orderBy,
-    //     int page,
-    //     int pageSize)
-    // {
-    //     IQueryable<ItemRequest> query = _entities
-    //         .Where(filter)
-    //         .Include(r => r.RequestItems)
-    //             .ThenInclude(ri => ri.ItemModel)
-    //                 .ThenInclude(im => im.ItemType);
-
-    //     var totalCount = await query.CountAsync();
-    //     var items = await orderBy(query)
-    //         .Skip((page - 1) * pageSize)
-    //         .Take(pageSize)
-    //         .ToListAsync();
-
-    //     return new PagedResultDto<ItemRequest>
-    //     {
-    //         Items = items,
-    //         TotalCount = totalCount,
-    //         Page = page,
-    //         PageSize = pageSize
-    //     };
-    // }
-
-
 }

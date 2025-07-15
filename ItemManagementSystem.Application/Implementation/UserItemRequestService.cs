@@ -138,16 +138,16 @@ public class UserItemRequestService : IUserItemRequestService
 
         // Build sorting
         Func<IQueryable<ItemRequest>, IOrderedQueryable<ItemRequest>> orderBy;
-        switch (filter.OrderBy?.ToLower())
+        switch (filter.SortBy?.ToLower())
         {
             case "requestnumber":
-                orderBy = q => filter.SortDesc ? q.OrderByDescending(x => x.RequestNumber) : q.OrderBy(x => x.RequestNumber);
+                orderBy = q => filter.SortDirection == "desc" ? q.OrderByDescending(x => x.RequestNumber) : q.OrderBy(x => x.RequestNumber);
                 break;
             case "status":
-                orderBy = q => filter.SortDesc ? q.OrderByDescending(x => x.Status) : q.OrderBy(x => x.Status);
+                orderBy = q => filter.SortDirection == "desc" ? q.OrderByDescending(x => x.Status) : q.OrderBy(x => x.Status);
                 break;
             default:
-                orderBy = q => filter.SortDesc ? q.OrderByDescending(x => x.CreatedAt) : q.OrderBy(x => x.CreatedAt);
+                orderBy = q => filter.SortDirection == "desc" ? q.OrderByDescending(x => x.CreatedAt) : q.OrderBy(x => x.CreatedAt);
                 break;
         }
 

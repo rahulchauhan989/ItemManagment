@@ -13,17 +13,19 @@ namespace ItemManagementSystem.Application.Implementation
     public class ItemModelService : IItemModelService
     {
         private readonly IRepository<ItemModel> _repo;
+        private readonly IRepository<ItemType> _itemTypeRepo;
         private readonly IRepository<RequestItem> _requestItemRepo;
         private readonly IRepository<ItemRequest> _itemRequestRepo;
         private readonly IMapper _mapper;
 
         public ItemModelService(IRepository<ItemModel> repo, IMapper mapper,
-            IRepository<RequestItem> requestItemRepo, IRepository<ItemRequest> itemRequestRepo)
+            IRepository<RequestItem> requestItemRepo, IRepository<ItemRequest> itemRequestRepo, IRepository<ItemType> itemtyperepo)
         {
             _requestItemRepo = requestItemRepo;
             _repo = repo;
             _mapper = mapper;
             _itemRequestRepo = itemRequestRepo;
+            _itemTypeRepo = itemtyperepo;
         }
 
         public async Task<ItemModelDto> CreateAsync(ItemModelDto dto)
@@ -55,9 +57,14 @@ namespace ItemManagementSystem.Application.Implementation
 
             //if itemtype Id exist or not
             bool isItemTypeIdExist = (await _repo.FindAsync(
-                it => it.ItemTypeId == dto.ItemTypeId
+                it => it.ItemTypeId == dto.ItemTypeId && !it.IsDeleted
             )).Any();
             if (!isItemTypeIdExist)
+                throw new NullObjectException(AppMessages.ItemTypeNotFound);
+
+            //check wether itemtype is active or not
+            var itemType = await _itemTypeRepo.GetByIdAsync(dto.ItemTypeId);
+            if (itemType == null || itemType.IsDeleted)
                 throw new NullObjectException(AppMessages.ItemTypeNotFound);
 
             var entity = _mapper.Map<ItemModel>(dto);
@@ -91,16 +98,16 @@ namespace ItemManagementSystem.Application.Implementation
 
             // Build sorting
             Func<IQueryable<ItemModel>, IOrderedQueryable<ItemModel>> orderBy;
-            switch (filter.OrderBy?.ToLower())
+            switch (filter.SortBy?.ToLower())
             {
                 case "name":
-                    orderBy = q => filter.SortDesc ? q.OrderByDescending(x => x.Name) : q.OrderBy(x => x.Name);
+                    orderBy = q => filter.SortDirection == "desc" ? q.OrderByDescending(x => x.Name) : q.OrderBy(x => x.Name);
                     break;
                 case "createdat":
-                    orderBy = q => filter.SortDesc ? q.OrderByDescending(x => x.CreatedAt) : q.OrderBy(x => x.CreatedAt);
+                    orderBy = q => filter.SortDirection == "desc" ? q.OrderByDescending(x => x.CreatedAt) : q.OrderBy(x => x.CreatedAt);
                     break;
                 default:
-                    orderBy = q => filter.SortDesc ? q.OrderByDescending(x => x.Name) : q.OrderBy(x => x.Name);
+                    orderBy = q => filter.SortDirection == "desc" ? q.OrderByDescending(x => x.Name) : q.OrderBy(x => x.Name);
                     break;
             }
 

@@ -95,10 +95,10 @@ namespace ItemManagementSystem.Application.Implementation
             // Sorting
             Func<IQueryable<ItemType>, IOrderedQueryable<ItemType>> orderBy = query =>
             {
-                if (filter.OrderBy?.Equals("Name", StringComparison.OrdinalIgnoreCase) == true)
-                    return filter.SortDesc ? query.OrderByDescending(x => x.Name) : query.OrderBy(x => x.Name);
-                if (filter.OrderBy?.Equals("CreatedAt", StringComparison.OrdinalIgnoreCase) == true)
-                    return filter.SortDesc ? query.OrderByDescending(x => x.CreatedAt) : query.OrderBy(x => x.CreatedAt);
+                if (filter.SortBy?.Equals("Name", StringComparison.OrdinalIgnoreCase) == true)
+                    return filter.SortDirection == "desc" ? query.OrderByDescending(x => x.Name) : query.OrderBy(x => x.Name);
+                if (filter.SortBy?.Equals("CreatedAt", StringComparison.OrdinalIgnoreCase) == true)
+                    return filter.SortDirection == "desc"? query.OrderByDescending(x => x.CreatedAt) : query.OrderBy(x => x.CreatedAt);
 
                 return query.OrderBy(x => x.Name);
             };

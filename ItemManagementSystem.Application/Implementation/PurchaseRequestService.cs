@@ -55,7 +55,7 @@ namespace ItemManagementSystem.Application.Implementation
             foreach (var itemDto in dto.Items)
             {
                 var itemModel = await _itemModelRepo.GetByIdAsync(itemDto.ItemModelId);
-                if (itemModel == null)
+                if (itemModel == null || itemModel.IsDeleted)
                     throw new NullObjectException($"ItemModel with id {itemDto.ItemModelId} not found.");
 
                 itemModel.Quantity += itemDto.Quantity;
@@ -86,10 +86,17 @@ namespace ItemManagementSystem.Application.Implementation
 
         public async Task<PurchaseRequestDto> CreateAsync(PurchaseRequestCreateDto dto, int userId)
         {
-            //check in dto itemmodal id exist, if not than throw exception
+
+
             if (dto.Items == null || dto.Items.Count == 0)
                 throw new NullObjectException(AppMessages.PurchaseRequestItemsCannotBeEmpty);
 
+            foreach (var itemdto in dto.Items)
+            {
+                var itemModel = await _itemModelRepo.GetByIdAsync(itemdto.ItemModelId);
+                if (itemModel == null || itemModel.IsDeleted)
+                    throw new NullObjectException(AppMessages.ItemModelsNotFound);
+            }
 
             var purchaseEntity = _mapper.Map<PurchaseRequest>(dto);
             purchaseEntity.Date = DateTime.UtcNow;
@@ -101,7 +108,7 @@ namespace ItemManagementSystem.Application.Implementation
             foreach (var itemDto in dto.Items)
             {
                 var itemModel = await _itemModelRepo.GetByIdAsync(itemDto.ItemModelId);
-                if (itemModel == null)
+                if (itemModel == null || itemModel.IsDeleted)
                     throw new NullObjectException(AppMessages.ItemModelsNotFound);
 
                 itemModel.Quantity += itemDto.Quantity;
@@ -176,8 +183,8 @@ namespace ItemManagementSystem.Application.Implementation
                 query = query.Where(x => x.Date.Date == filter.Date.Value.Date);
 
             // Sorting
-            if (filter.OrderBy == "Date")
-                query = filter.SortDesc ? query.OrderByDescending(x => x.Date) : query.OrderBy(x => x.Date);
+            if (filter.SortBy == "Date")
+                query = filter.SortDirection == "desc" ? query.OrderByDescending(x => x.Date) : query.OrderBy(x => x.Date);
             else
                 query = query.OrderByDescending(x => x.CreatedAt);
 

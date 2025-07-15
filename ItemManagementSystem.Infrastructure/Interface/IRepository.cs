@@ -13,30 +13,11 @@ public interface IRepository<T> where T : class
     Task<T> AddAsync(T entity);
     Task DeleteAsync(T entity);
     Task<IEnumerable<T>> FindIncludingAsync(Expression<Func<T, bool>> predicate, params Expression<Func<T, object>>[] includeProperties);
-    // Task<PagedResultDto<ItemRequest>> GetPagedAsync(
-    // Expression<Func<ItemRequest, bool>> filter,
-    // Func<IQueryable<ItemRequest>, IOrderedQueryable<ItemRequest>> orderBy,
-    // int page,
-    // int pageSize);
-
+  
     Task<PagedResultDto<T>> GetPagedAsync(
     Expression<Func<T, bool>> filter,
     Func<IQueryable<T>, IOrderedQueryable<T>> orderBy,
     int page,
     int pageSize);
-
-//  Task<PagedResultDto<T>> GetPagedAsyncWithIncludes(
-//     Expression<Func<T, bool>> filter,
-//     Func<IQueryable<T>, IOrderedQueryable<T>> orderBy,
-//     int page,
-//     int pageSize,
-//     params Expression<Func<T, object>>[] includeProperties);
-
-//      Task<PagedResultDto<ItemRequest>> GetPagedRequestsWithItemsAsync(
-//         Expression<Func<ItemRequest, bool>> filter,
-//         Func<IQueryable<ItemRequest>, IOrderedQueryable<ItemRequest>> orderBy,
-//         int page,
-//         int pageSize
-//     );
 
 }

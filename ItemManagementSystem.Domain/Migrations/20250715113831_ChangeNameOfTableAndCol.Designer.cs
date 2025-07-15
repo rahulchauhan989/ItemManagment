@@ -3,6 +3,7 @@ using System;
 using ItemManagementSystem.Domain.DataContext;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ItemManagementSystem.Domain.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250715113831_ChangeNameOfTableAndCol")]
+    partial class ChangeNameOfTableAndCol
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -26,44 +29,36 @@ namespace ItemManagementSystem.Domain.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("id");
+                        .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("CreatedBy")
-                        .HasColumnType("integer")
-                        .HasColumnName("created_by");
+                        .HasColumnType("integer");
 
                     b.Property<string>("Description")
                         .HasMaxLength(500)
-                        .HasColumnType("character varying(500)")
-                        .HasColumnName("description");
+                        .HasColumnType("character varying(500)");
 
                     b.Property<bool>("IsDeleted")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_deleted");
+                        .HasColumnType("boolean");
 
                     b.Property<int>("ItemTypeId")
-                        .HasColumnType("integer")
-                        .HasColumnName("item_type_id");
+                        .HasColumnType("integer");
 
                     b.Property<int?>("ItemTypeId1")
                         .HasColumnType("integer");
 
                     b.Property<int?>("ModifiedBy")
-                        .HasColumnType("integer")
-                        .HasColumnName("modified_by");
+                        .HasColumnType("integer");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("name");
+                        .HasColumnType("character varying(100)");
 
                     b.Property<int>("Quantity")
                         .HasColumnType("integer");
@@ -72,8 +67,7 @@ namespace ItemManagementSystem.Domain.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("updated_at");
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 
@@ -87,7 +81,7 @@ namespace ItemManagementSystem.Domain.Migrations
 
                     b.HasIndex("RequestItemId");
 
-                    b.ToTable("item_models", (string)null);
+                    b.ToTable("ItemModels");
                 });
 
             modelBuilder.Entity("ItemManagementSystem.Domain.DataModels.ItemRequest", b =>
@@ -154,41 +148,33 @@ namespace ItemManagementSystem.Domain.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("id");
+                        .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("CreatedBy")
-                        .HasColumnType("integer")
-                        .HasColumnName("created_by");
+                        .HasColumnType("integer");
 
                     b.Property<string>("Description")
                         .HasMaxLength(500)
-                        .HasColumnType("character varying(500)")
-                        .HasColumnName("description");
+                        .HasColumnType("character varying(500)");
 
                     b.Property<bool>("IsDeleted")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_deleted");
+                        .HasColumnType("boolean");
 
                     b.Property<int?>("ModifiedBy")
-                        .HasColumnType("integer")
-                        .HasColumnName("modified_by");
+                        .HasColumnType("integer");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("name");
+                        .HasColumnType("character varying(100)");
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("updated_at");
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 
@@ -196,7 +182,7 @@ namespace ItemManagementSystem.Domain.Migrations
 
                     b.HasIndex("ModifiedBy");
 
-                    b.ToTable("item_types", (string)null);
+                    b.ToTable("ItemTypes");
                 });
 
             modelBuilder.Entity("ItemManagementSystem.Domain.DataModels.PurchaseRequest", b =>

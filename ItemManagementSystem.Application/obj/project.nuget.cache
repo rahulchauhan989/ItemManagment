@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "rQ9uCbJCWRfzoqZoAUl+NS3XwhrNNq2RC/SHA2mWNncokOfy/HQszOmyJ9jg+Nw4fFUTBOOnPqLYT3gXcWGncQ==",
+  "dgSpecHash": "3tmEmD15eLyNX8L6p318NNa+PkzL/9r3vSLIsqwqDtx3P2ZgdX50LBlnNzCDSdCiLIlfa9M6m8cAnQ0tzryeQQ==",
   "success": true,
-  "projectFilePath": "d:\\ItemManagementSystem\\ItemManagementSystem.Application\\ItemManagementSystem.Application.csproj",
+  "projectFilePath": "D:\\ItemManagementSystem\\ItemManagementSystem.Application\\ItemManagementSystem.Application.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\pca88\\.nuget\\packages\\automapper\\12.0.1\\automapper.12.0.1.nupkg.sha512",
     "C:\\Users\\pca88\\.nuget\\packages\\automapper.extensions.microsoft.dependencyinjection\\12.0.1\\automapper.extensions.microsoft.dependencyinjection.12.0.1.nupkg.sha512",
