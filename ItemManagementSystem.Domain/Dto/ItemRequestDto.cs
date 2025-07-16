@@ -19,10 +19,12 @@ namespace ItemManagementSystem.Domain.Dto
 
     public class RequestItemDto
     {
-        // public int? Id { get; set; }
-        // public int? RequestId { get; set; }
         public int ItemModelId { get; set; }
         public int Quantity { get; set; }
+        public int? ItemTypeId { get; set; }
+        public string? ItemTypeName { get; set; }
+        public string? ItemModelName { get; set; }
+
 
     }
 }

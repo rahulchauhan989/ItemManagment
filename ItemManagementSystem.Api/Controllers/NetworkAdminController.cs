@@ -47,6 +47,13 @@ namespace ItemManagementSystem.Api.Controllers
             return new ApiResponse(true, 200, result, AppMessages.ItemTypesRetrieved);
         }
 
+          [HttpPost("item-types/search")]
+        public async Task<ActionResult<ApiResponse>> FilterItemTypes([FromBody] ItemTypeFilterDto filter)
+        {
+            var result = await _itemTypeService.GetPagedItemTypesAsync(filter);
+            return new ApiResponse(true, 200, result, AppMessages.ItemTypesRetrieved);
+        }
+
         [HttpPut("item-types/{id}")]
         public async Task<ActionResult<ApiResponse>> UpdateItemType(int id, [FromBody] ItemTypeCreateRequest dto)
         {
@@ -64,12 +71,12 @@ namespace ItemManagementSystem.Api.Controllers
             return new ApiResponse(true, 204, null, AppMessages.ItemTypeDeleted);
         }
 
-        [HttpGet("item-types")]
-        public async Task<ActionResult<ApiResponse>> GetItemTypes([FromQuery] ItemTypeFilterDto filter)
-        {
-            var result = await _itemTypeService.GetPagedItemTypesAsync(filter);
-            return new ApiResponse(true, 200, result, AppMessages.ItemTypesRetrieved);
-        }
+        // [HttpGet("item-types")]
+        // public async Task<ActionResult<ApiResponse>> GetItemTypes([FromQuery] ItemTypeFilterDto filter)
+        // {
+        //     var result = await _itemTypeService.GetPagedItemTypesAsync(filter);
+        //     return new ApiResponse(true, 200, result, AppMessages.ItemTypesRetrieved);
+        // }
 
         [HttpPost("item-models")]
         public async Task<ActionResult<ApiResponse>> CreateItemModel([FromBody] ItemModelCreateDto dto)
@@ -80,19 +87,14 @@ namespace ItemManagementSystem.Api.Controllers
             return new ApiResponse(true, 201, result, AppMessages.ItemModelCreated);
         }
 
-        // [HttpGet("item-models/{id}")]
-        // public async Task<ActionResult<ApiResponse>> GetItemModel(int id)
-        // {
-        //     var result = await _itemModelService.GetByIdAsync(id);
-        //     return new ApiResponse(true, 200, result, AppMessages.ItemModelsRetrieved);
-        // }
-
-        [HttpPost("item-types/search")]
-        public async Task<ActionResult<ApiResponse>> FilterItemTypes([FromBody] ItemTypeFilterDto filter)
+        [HttpGet("item-models/{id}")]
+        public async Task<ActionResult<ApiResponse>> GetItemModel(int id)
         {
-            var result = await _itemTypeService.GetPagedItemTypesAsync(filter);
-            return new ApiResponse(true, 200, result, AppMessages.ItemTypesRetrieved);
+            var result = await _itemModelService.GetByIdAsync(id);
+            return new ApiResponse(true, 200, result, AppMessages.ItemModelsRetrieved);
         }
+
+      
 
         [HttpPut("item-models/{id}")]
         public async Task<ActionResult<ApiResponse>> UpdateItemModel(int id, [FromBody] ItemModelCreateDto dto)
@@ -141,12 +143,12 @@ namespace ItemManagementSystem.Api.Controllers
             return new ApiResponse(true, 200, result, AppMessages.PurchaseRequestsRetrieved);
         }
 
-        [HttpGet("purchase-requests")]
-        public async Task<ActionResult<ApiResponse>> ListPurchaseRequests([FromQuery] PurchaseRequestFilterDto filter)
-        {
-            var result = await _purchaseRequestService.GetAllAsync(filter);
-            return new ApiResponse(true, 200, result, AppMessages.PurchaseRequestsRetrieved);
-        }
+        // [HttpGet("purchase-requests")]
+        // public async Task<ActionResult<ApiResponse>> ListPurchaseRequests([FromQuery] PurchaseRequestFilterDto filter)
+        // {
+        //     var result = await _purchaseRequestService.GetAllAsync(filter);
+        //     return new ApiResponse(true, 200, result, AppMessages.PurchaseRequestsRetrieved);
+        // }
 
         [HttpPost("purchase-requests/search")]
         public async Task<ActionResult<ApiResponse>> FilterPurchaseRequests([FromBody] PurchaseRequestFilterDto filter)

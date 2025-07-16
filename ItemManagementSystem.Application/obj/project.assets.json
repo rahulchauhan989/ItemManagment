@@ -7711,8 +7711,8 @@
         "net7.0": {
           "targetAlias": "net7.0",
           "projectReferences": {
-            "D:\\ItemManagementSystem\\ItemManagementSystem.Domain\\ItemManagementSystem.Domain.csproj": {
-              "projectPath": "D:\\ItemManagementSystem\\ItemManagementSystem.Domain\\ItemManagementSystem.Domain.csproj"
+            "d:\\ItemManagementSystem\\ItemManagementSystem.Domain\\ItemManagementSystem.Domain.csproj": {
+              "projectPath": "d:\\ItemManagementSystem\\ItemManagementSystem.Domain\\ItemManagementSystem.Domain.csproj"
             },
             "D:\\ItemManagementSystem\\ItemManagementSystem.Infrastructure\\ItemManagementSystem.Infrastructure.csproj": {
               "projectPath": "D:\\ItemManagementSystem\\ItemManagementSystem.Infrastructure\\ItemManagementSystem.Infrastructure.csproj"

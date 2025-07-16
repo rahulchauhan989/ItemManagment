@@ -127,59 +127,58 @@ public class UserItemRequestService : IUserItemRequestService
         };
     }
  
-    public async Task<PagedResultDto<ItemRequestResponseDto>> GetRequestsByUserPagedAsync(int userId, Domain.Dto.Request.ItemRequestFilterDto filter)
-    {
-        // Build filter expression
-        Expression<Func<ItemRequest, bool>> predicate = r =>
-            r.UserId == userId &&
-            !r.IsDeleted &&
-            (string.IsNullOrEmpty(filter.Status) || r.Status == filter.Status) &&
-            (string.IsNullOrEmpty(filter.SearchTerm) || r.RequestNumber!=null && r.RequestNumber.Contains(filter.SearchTerm));
-
-        // Build sorting
-        Func<IQueryable<ItemRequest>, IOrderedQueryable<ItemRequest>> orderBy;
-        switch (filter.SortBy?.ToLower())
+        public async Task<PagedResultDto<ItemRequestResponseDto>> GetRequestsByUserPagedAsync(int userId, Domain.Dto.Request.ItemRequestFilterDto filter)
         {
-            case "requestnumber":
-                orderBy = q => filter.SortDirection == "desc" ? q.OrderByDescending(x => x.RequestNumber) : q.OrderBy(x => x.RequestNumber);
-                break;
-            case "status":
-                orderBy = q => filter.SortDirection == "desc" ? q.OrderByDescending(x => x.Status) : q.OrderBy(x => x.Status);
-                break;
-            default:
-                orderBy = q => filter.SortDirection == "desc" ? q.OrderByDescending(x => x.CreatedAt) : q.OrderBy(x => x.CreatedAt);
-                break;
-        }
-
-        var pagedResult = await _requestRepo.GetPagedAsync(predicate, orderBy, filter.Page, filter.PageSize);
-
-        // Fetch items for each request
-        var resultItems = new List<ItemRequestResponseDto>();
-        foreach (var r in pagedResult.Items)
-        {
-            var items = await _requestItemRepo.FindAsync(i => i.ItemRequestId == r.Id && !i.IsDeleted);
-            resultItems.Add(new ItemRequestResponseDto
+            var filterProperties = new Dictionary<string, string?>();
+            filterProperties.Add("UserId", userId.ToString());
+            if (!string.IsNullOrEmpty(filter.Status))
             {
-                Id = r.Id,
-                RequestNumber = r.RequestNumber!,
-                Status = r.Status!,
-                CreatedAt = r.CreatedAt,
-                Items = items.Select(i => new RequestItemDto
-                {
-                    ItemModelId = i.ItemModelId,
-                    Quantity = i.Quantity
-                }).ToList()
-            });
-        }
+                filterProperties.Add("Status", filter.Status);
+            }
+            if (!string.IsNullOrEmpty(filter.SearchTerm))
+            {
+                filterProperties.Add("RequestNumber", filter.SearchTerm);
+            }
 
-        return new PagedResultDto<ItemRequestResponseDto>
-        {
-            Items = resultItems,
-            TotalCount = pagedResult.TotalCount,
-            Page = pagedResult.Page,
-            PageSize = pagedResult.PageSize
-        };
-    }
+            var pagedResult = await _requestRepo.GetPagedWithMultipleFiltersAndSortAsync(
+                filterProperties,
+                filter.SortBy,
+                filter.SortDirection,
+                filter.Page,
+                filter.PageSize);
+
+            var resultItems = new List<ItemRequestResponseDto>();
+            foreach (var r in pagedResult.Items)
+            {
+                var items = await _requestItemRepo.FindIncludingAsync(
+                    i => i.ItemRequestId == r.Id && !i.IsDeleted,
+                    new System.Linq.Expressions.Expression<Func<RequestItem, object>>[] { i => i.ItemModel, i => i.ItemModel.ItemType });
+
+                resultItems.Add(new ItemRequestResponseDto
+                {
+                    Id = r.Id,
+                    RequestNumber = r.RequestNumber!,
+                    Status = r.Status!,
+                    CreatedAt = r.CreatedAt,
+                    Items = items.Select(i => new RequestItemDto
+                    {
+                        ItemModelId = i.ItemModelId,
+                        Quantity = i.Quantity,
+                        ItemModelName = i.ItemModel?.Name,
+                        ItemTypeId = i.ItemModel?.ItemTypeId ?? 0,
+                        ItemTypeName = i.ItemModel?.ItemType?.Name
+                    }).ToList()
+                });
+            }
+
+            return new PagedResultDto<ItemRequestResponseDto>
+            {
+                Items = resultItems,
+                TotalCount = pagedResult.TotalCount,
+                Page = pagedResult.Page,
+                PageSize = pagedResult.PageSize
+            };
+        }
 
     public async Task<bool> ChangeStatusAsync(int requestId, int userId)
     {

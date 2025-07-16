@@ -50,8 +50,8 @@ public static class AppMessages
     public const string UnauthorizedAction = "You are not authorized to perform this action.";
     public const string cannotchangeOtherPersonstatus = "You cannot change the status of another person's request.";
     public const string RequestCancelled = "Request cancelled successfully.";
-
     public const string RejectRequest = "Only Pending requests can be approved or rejected.";
+    public const string propertyNotFound = "Property not found in the request.";
 
     public const string InvalidReturnItems = "Return request items cannot be null or empty.";
 

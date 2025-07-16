@@ -90,51 +90,61 @@ public class ReturnRequestService : IReturnRequestService
         };
     }
 
-    public async Task<PagedResultDto<ReturnRequestDto>> GetUserReturnRequestsAsync(int userId, ReturnRequestFilterDto filter)
-    {
-        Expression<Func<ReturnRequest, bool>> predicate = r =>
-            r.UserId == userId &&
-            !r.IsDeleted &&
-            (string.IsNullOrEmpty(filter.Status) || r.Status == filter.Status) &&
-            (string.IsNullOrEmpty(filter.SearchTerm) || r.ReturnRequestNumber!=null && r.ReturnRequestNumber.Contains(filter.SearchTerm));
-
-        Func<IQueryable<ReturnRequest>, IOrderedQueryable<ReturnRequest>> orderBy = filter.SortBy?.ToLower() switch
+        public async Task<PagedResultDto<ReturnRequestDto>> GetUserReturnRequestsAsync(int userId, ReturnRequestFilterDto filter)
         {
-            "status" => q => filter.SortDirection == "desc" ? q.OrderByDescending(x => x.Status) : q.OrderBy(x => x.Status),
-            _ => q => filter.SortDirection == "desc" ? q.OrderByDescending(x => x.CreatedAt) : q.OrderBy(x => x.CreatedAt)
-        };
-
-        var paged = await _returnRequestRepo.GetPagedAsync(predicate, orderBy, filter.Page, filter.PageSize);
-
-        var result = new List<ReturnRequestDto>();
-
-        foreach (var entity in paged.Items)
-        {
-            var items = await _returnRequestItemRepo.FindAsync(i => i.ReturnRequestId == entity.Id && !i.IsDeleted);
-            var itemDtos = items.Select(i => new ReturnRequestItemDto
+            var filterProperties = new Dictionary<string, string?>();
+            filterProperties.Add("UserId", userId.ToString());
+            if (!string.IsNullOrEmpty(filter.Status))
             {
-                ItemModelId = i.ItemModelId,
-                Quantity = i.Quantity
-            }).ToList();
-
-            result.Add(new ReturnRequestDto
+                filterProperties.Add("Status", filter.Status);
+            }
+            if (!string.IsNullOrEmpty(filter.SearchTerm))
             {
-                Id = entity.Id,
-                ReturnRequestNumber = entity.ReturnRequestNumber!,
-                Status = entity.Status!,
-                CreatedAt = entity.CreatedAt,
-                Items = itemDtos
-            });
+                filterProperties.Add("ReturnRequestNumber", filter.SearchTerm);
+            }
+
+            var paged = await _returnRequestRepo.GetPagedWithMultipleFiltersAndSortAsync(
+                filterProperties,
+                filter.SortBy,
+                filter.SortDirection,
+                filter.Page,
+                filter.PageSize);
+
+            var result = new List<ReturnRequestDto>();
+
+            foreach (var entity in paged.Items)
+            {
+                var items = await _returnRequestItemRepo.FindIncludingAsync(
+                    i => i.ReturnRequestId == entity.Id && !i.IsDeleted,
+                    new System.Linq.Expressions.Expression<Func<ReturnRequestItem, object>>[] { i => i.ItemModel, i => i.ItemModel.ItemType });
+
+                var itemDtos = items.Select(i => new ReturnRequestItemDto
+                {
+                    ItemModelId = i.ItemModelId,
+                    Quantity = i.Quantity,
+                    ItemModelName = i.ItemModel?.Name,
+                    ItemTypeId = i.ItemModel?.ItemTypeId ?? 0,
+                    ItemTypeName = i.ItemModel?.ItemType?.Name
+                }).ToList();
+
+                result.Add(new ReturnRequestDto
+                {
+                    Id = entity.Id,
+                    ReturnRequestNumber = entity.ReturnRequestNumber!,
+                    Status = entity.Status!,
+                    CreatedAt = entity.CreatedAt,
+                    Items = itemDtos
+                });
+            }
+
+            return new PagedResultDto<ReturnRequestDto>
+            {
+                Items = result,
+                TotalCount = paged.TotalCount,
+                Page = paged.Page,
+                PageSize = paged.PageSize
+            };
         }
-
-        return new PagedResultDto<ReturnRequestDto>
-        {
-            Items = result,
-            TotalCount = paged.TotalCount,
-            Page = paged.Page,
-            PageSize = paged.PageSize
-        };
-    }
 
     public async Task UpdateReturnRequestStatusAsync(int id, string status, string? comment, int userId)
     {
@@ -172,56 +182,66 @@ public class ReturnRequestService : IReturnRequestService
         await _returnRequestRepo.UpdateAsync(request);
     }
 
-    public async Task<PagedResultDto<ReturnRequestDto>> GetAllReturnRequestsAsync(ReturnRequestFilterDto filter)
-    {
-        Expression<Func<ReturnRequest, bool>> predicate = r =>
-            !r.IsDeleted &&
-            (string.IsNullOrEmpty(filter.Status) || r.Status == filter.Status) &&
-            (string.IsNullOrEmpty(filter.SearchTerm) || r.ReturnRequestNumber != null && r.ReturnRequestNumber.Contains(filter.SearchTerm));
-
-        Func<IQueryable<ReturnRequest>, IOrderedQueryable<ReturnRequest>> orderBy = filter.SortBy?.ToLower() switch
+        public async Task<PagedResultDto<ReturnRequestDto>> GetAllReturnRequestsAsync(ReturnRequestFilterDto filter)
         {
-            "status" => q => filter.SortDirection == "desc" ? q.OrderByDescending(x => x.Status) : q.OrderBy(x => x.Status),
-            _ => q => filter.SortDirection == "desc" ? q.OrderByDescending(x => x.CreatedAt) : q.OrderBy(x => x.CreatedAt)
-        };
-
-        var paged = await _returnRequestRepo.GetPagedAsync(predicate, orderBy, filter.Page, filter.PageSize);
-
-        var result = new List<ReturnRequestDto>();
-
-        foreach (var entity in paged.Items)
-        {
-            var items = await _returnRequestItemRepo.FindAsync(i => i.ReturnRequestId == entity.Id && !i.IsDeleted);
-            var itemDtos = items.Select(i => new ReturnRequestItemDto
+            var filterProperties = new Dictionary<string, string?>();
+            if (!string.IsNullOrEmpty(filter.Status))
             {
-                ItemModelId = i.ItemModelId,
-                Quantity = i.Quantity
-            }).ToList();
-
-            var user = (await _userRepo.FindAsync(u => u.Id == entity.UserId && u.Active)).FirstOrDefault();
-            if (user == null)
-                throw new NullObjectException(AppMessages.UserNotFound);
-
-            result.Add(new ReturnRequestDto
+                filterProperties.Add("Status", filter.Status);
+            }
+            if (!string.IsNullOrEmpty(filter.SearchTerm))
             {
-                Id = entity.Id,
-                ReturnRequestNumber = entity.ReturnRequestNumber!,
-                Status = entity.Status!,
-                CreatedAt = entity.CreatedAt,
-                UserId = entity.UserId,
-                UserName = user.Name,
-                Items = itemDtos
-            });
+                filterProperties.Add("ReturnRequestNumber", filter.SearchTerm);
+            }
+
+            var paged = await _returnRequestRepo.GetPagedWithMultipleFiltersAndSortAsync(
+                filterProperties,
+                filter.SortBy,
+                filter.SortDirection,
+                filter.Page,
+                filter.PageSize);
+
+            var result = new List<ReturnRequestDto>();
+
+            foreach (var entity in paged.Items)
+            {
+                var items = await _returnRequestItemRepo.FindIncludingAsync(
+                    i => i.ReturnRequestId == entity.Id && !i.IsDeleted,
+                    new System.Linq.Expressions.Expression<Func<ReturnRequestItem, object>>[] { i => i.ItemModel, i => i.ItemModel.ItemType });
+
+                var itemDtos = items.Select(i => new ReturnRequestItemDto
+                {
+                    ItemModelId = i.ItemModelId,
+                    Quantity = i.Quantity,
+                    ItemModelName = i.ItemModel?.Name,
+                    ItemTypeId = i.ItemModel?.ItemTypeId ?? 0,
+                    ItemTypeName = i.ItemModel?.ItemType?.Name
+                }).ToList();
+
+                var user = (await _userRepo.FindAsync(u => u.Id == entity.UserId && u.Active)).FirstOrDefault();
+                if (user == null)
+                    throw new NullObjectException(AppMessages.UserNotFound);
+
+                result.Add(new ReturnRequestDto
+                {
+                    Id = entity.Id,
+                    ReturnRequestNumber = entity.ReturnRequestNumber!,
+                    Status = entity.Status!,
+                    CreatedAt = entity.CreatedAt,
+                    UserId = entity.UserId,
+                    UserName = user.Name,
+                    Items = itemDtos
+                });
+            }
+
+            return new PagedResultDto<ReturnRequestDto>
+            {
+                Items = result,
+                TotalCount = paged.TotalCount,
+                Page = paged.Page,
+                PageSize = paged.PageSize
+            };
         }
-
-        return new PagedResultDto<ReturnRequestDto>
-        {
-            Items = result,
-            TotalCount = paged.TotalCount,
-            Page = paged.Page,
-            PageSize = paged.PageSize
-        };
-    }
 
     private static string GenerateReturnRequestNumber()
     {

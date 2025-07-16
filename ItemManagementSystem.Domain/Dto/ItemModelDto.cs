@@ -15,4 +15,6 @@ public class ItemModelDto
     public int Quantity { get; set; }
     public int createdBy { get; set; }
     public int? modifiedBy { get; set; }
+    public string? ItemTypeName { get; set; }
+
 }

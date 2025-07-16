@@ -20,4 +20,17 @@ public interface IRepository<T> where T : class
     int page,
     int pageSize);
 
+    Task<PagedResultDto<T>> GetPagedWithMultipleFiltersAndSortAsync(
+        Dictionary<string, string?>? filterProperties,
+        string? sortBy,
+        string? sortDirection,
+        int page,
+        int pageSize);
+
+    Task<PagedResultDto<T>> GetPagedAsyncWithIncludes(
+        Expression<Func<T, bool>>? filter,
+        Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy,
+        int page,
+        int pageSize,
+        params Expression<Func<T, object>>[] includeProperties);
 }

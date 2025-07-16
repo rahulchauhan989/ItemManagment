@@ -8,6 +8,9 @@ public class ReturnRequestCreateDto
 public class ReturnRequestItemDto
 {
     public int ItemModelId { get; set; }
+    public string? ItemModelName { get; set; }
+    public int ItemTypeId { get; set; }
+    public string? ItemTypeName { get; set; }
     public int Quantity { get; set; }
 }
 

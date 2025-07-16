@@ -27,14 +27,7 @@ public class ReturnRequestController : ControllerBase
         return Ok(result);
     }
 
-    [HttpGet("my-requests")]
-    public async Task<IActionResult> GetUserReturnRequests([FromQuery] ReturnRequestFilterDto filter)
-    {
-        string? token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
-        int userId = _itemTypeService.ExtractUserIdFromToken(token);
-        var result = await _returnRequestService.GetUserReturnRequestsAsync(userId, filter);
-        return Ok(result);
-    }
+
 
     [HttpPost("my-requests")]
     public async Task<IActionResult> GetUserReturnRequestsPost([FromBody] ReturnRequestFilterDto filter)
@@ -45,13 +38,7 @@ public class ReturnRequestController : ControllerBase
         return Ok(result);
     }
 
-    [HttpGet("all-request")]
-    [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> GetAllReturnRequests([FromQuery] ReturnRequestFilterDto filter)
-    {
-        var result = await _returnRequestService.GetAllReturnRequestsAsync(filter);
-        return Ok(result);
-    }
+ 
 
     [HttpPost("all-request")]
     [Authorize(Roles = "Admin")]

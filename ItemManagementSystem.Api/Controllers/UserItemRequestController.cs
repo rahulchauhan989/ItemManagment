@@ -30,15 +30,15 @@ public class UserItemRequestController : ControllerBase
     }
 
 
-    [HttpGet("mine")]
-    [Authorize]
-    public async Task<ActionResult<ApiResponse>> GetMyItemRequests([FromQuery] Domain.Dto.Request.ItemRequestFilterDto filter)
-    {
-        string? token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
-        int userId = _itemTypeService.ExtractUserIdFromToken(token);
-        var pagedList = await _service.GetRequestsByUserPagedAsync(userId, filter);
-        return new ApiResponse(true, 200, pagedList, AppMessages.GetMyRequests);
-    }
+    // [HttpGet("mine")]
+    // [Authorize]
+    // public async Task<ActionResult<ApiResponse>> GetMyItemRequests([FromQuery] Domain.Dto.Request.ItemRequestFilterDto filter)
+    // {
+    //     string? token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+    //     int userId = _itemTypeService.ExtractUserIdFromToken(token);
+    //     var pagedList = await _service.GetRequestsByUserPagedAsync(userId, filter);
+    //     return new ApiResponse(true, 200, pagedList, AppMessages.GetMyRequests);
+    // }
 
     [HttpPost("mine")]
     [Authorize]

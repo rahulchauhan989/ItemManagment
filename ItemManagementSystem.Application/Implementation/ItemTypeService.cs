@@ -88,24 +88,19 @@ namespace ItemManagementSystem.Application.Implementation
 
         public async Task<PagedResultDto<ItemTypeDto>> GetPagedItemTypesAsync(ItemTypeFilterDto filter)
         {
-            // Filtering (search by name)
-            Expression<Func<ItemType, bool>> filterExpression = x =>
-                !x.IsDeleted && (string.IsNullOrEmpty(filter.SearchTerm) || x.Name.ToLower().Contains(filter.SearchTerm.ToLower()));
-
-            // Sorting
-            Func<IQueryable<ItemType>, IOrderedQueryable<ItemType>> orderBy = query =>
+            var filterProperties = new Dictionary<string, string?>();
+            if (!string.IsNullOrEmpty(filter.SearchTerm))
             {
-                if (filter.SortBy?.Equals("Name", StringComparison.OrdinalIgnoreCase) == true)
-                    return filter.SortDirection == "desc" ? query.OrderByDescending(x => x.Name) : query.OrderBy(x => x.Name);
-                if (filter.SortBy?.Equals("CreatedAt", StringComparison.OrdinalIgnoreCase) == true)
-                    return filter.SortDirection == "desc"? query.OrderByDescending(x => x.CreatedAt) : query.OrderBy(x => x.CreatedAt);
+                filterProperties.Add("Name", filter.SearchTerm);
+            }
 
-                return query.OrderBy(x => x.Name);
-            };
+            var pagedResult = await _repo.GetPagedWithMultipleFiltersAndSortAsync(
+                filterProperties,
+                filter.SortBy,
+                filter.SortDirection,
+                filter.Page,
+                filter.PageSize);
 
-            var pagedResult = await _repo.GetPagedAsync(filterExpression, orderBy, filter.Page, filter.PageSize);
-
-            // Map entities to DTOs
             return new PagedResultDto<ItemTypeDto>
             {
                 Items = _mapper.Map<IEnumerable<ItemTypeDto>>(pagedResult.Items),

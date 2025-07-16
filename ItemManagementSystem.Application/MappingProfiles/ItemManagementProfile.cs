@@ -11,7 +11,9 @@ public class ItemManagementProfile : Profile
   {
     CreateMap<ItemType, ItemTypeDto>().ReverseMap();
     CreateMap<ItemType, ItemTypeCreateRequest>().ReverseMap();
-    CreateMap<ItemModel, ItemModelDto>().ReverseMap();
+    CreateMap<ItemModel, ItemModelDto>()
+        .ForMember(dest => dest.ItemTypeName, opt => opt.MapFrom(src => src.ItemType.Name))
+        .ReverseMap();
     CreateMap<ItemModel, ItemModelCreateDto>().ReverseMap();
     CreateMap<PurchaseRequest, PurchaseRequestDto>().ReverseMap();
     CreateMap<PurchaseRequest, PurchaseRequestCreateDto>().ReverseMap();

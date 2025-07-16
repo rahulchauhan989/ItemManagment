@@ -12,7 +12,7 @@ namespace ItemManagementSystem.Application.Implementation
 {
     public class ItemModelService : IItemModelService
     {
-        private readonly IRepository<ItemModel> _repo;
+        private readonly IRepository<ItemModel> _itemModaRepo;
         private readonly IRepository<ItemType> _itemTypeRepo;
         private readonly IRepository<RequestItem> _requestItemRepo;
         private readonly IRepository<ItemRequest> _itemRequestRepo;
@@ -22,7 +22,7 @@ namespace ItemManagementSystem.Application.Implementation
             IRepository<RequestItem> requestItemRepo, IRepository<ItemRequest> itemRequestRepo, IRepository<ItemType> itemtyperepo)
         {
             _requestItemRepo = requestItemRepo;
-            _repo = repo;
+            _itemModaRepo = repo;
             _mapper = mapper;
             _itemRequestRepo = itemRequestRepo;
             _itemTypeRepo = itemtyperepo;
@@ -33,7 +33,7 @@ namespace ItemManagementSystem.Application.Implementation
             dto.Id = 0;
             dto.modifiedBy = null;
             //if ItemModal with same name already exists in same ItemType, throw exception
-            var exists = (await _repo.FindAsync(
+            var exists = (await _itemModaRepo.FindAsync(
                 it => it.Name.ToLower() == dto.Name.ToLower() && it.ItemTypeId == dto.ItemTypeId
             )).Any();
             if (exists)
@@ -41,7 +41,7 @@ namespace ItemManagementSystem.Application.Implementation
 
             var entity = _mapper.Map<ItemModel>(dto);
             entity.Quantity = 0;
-            var created = await _repo.AddAsync(entity);
+            var created = await _itemModaRepo.AddAsync(entity);
             return _mapper.Map<ItemModelDto>(created);
         }
 
@@ -49,14 +49,14 @@ namespace ItemManagementSystem.Application.Implementation
         {
 
             //if ItemModal with same name already exists in same ItemType, throw exception
-            var exists = (await _repo.FindAsync(
+            var exists = (await _itemModaRepo.FindAsync(
                 it => it.Name.ToLower() == dto.Name.ToLower() && it.ItemTypeId == dto.ItemTypeId
             )).Any();
             if (exists)
                 throw new AlreadyExistsException(AppMessages.ItemModelAlreadyExists);
 
             //if itemtype Id exist or not
-            bool isItemTypeIdExist = (await _repo.FindAsync(
+            bool isItemTypeIdExist = (await _itemModaRepo.FindAsync(
                 it => it.ItemTypeId == dto.ItemTypeId && !it.IsDeleted
             )).Any();
             if (!isItemTypeIdExist)
@@ -71,13 +71,14 @@ namespace ItemManagementSystem.Application.Implementation
             entity.CreatedBy = userId;
             entity.Quantity = 0;
 
-            var created = await _repo.AddAsync(entity);
+            var created = await _itemModaRepo.AddAsync(entity);
             return _mapper.Map<ItemModelCreateDto>(created);
         }
 
         public async Task<ItemModelDto?> GetByIdAsync(int id)
         {
-            var entity = await _repo.GetByIdAsync(id);
+            var entities = await _itemModaRepo.FindIncludingAsync(e => e.Id == id && e.IsDeleted==false, e => e.ItemType );
+            var entity = entities.FirstOrDefault();
             if (entity == null)
                 throw new NullObjectException(AppMessages.ItemModelNotFound);
             return _mapper.Map<ItemModelDto>(entity);
@@ -85,35 +86,37 @@ namespace ItemManagementSystem.Application.Implementation
 
         public async Task<IEnumerable<ItemModelDto>> GetAllAsync()
         {
-            var entities = await _repo.GetAllAsync();
+            var entities = await _itemModaRepo.GetAllAsync();
             return _mapper.Map<IEnumerable<ItemModelDto>>(entities);
         }
 
 
         public async Task<PagedResultDto<ItemModelDto>> GetPagedAsync(ItemModelFilterDto filter)
         {
-            // Build filter expression
-            Expression<Func<ItemModel, bool>> predicate = x =>
-                string.IsNullOrEmpty(filter.SearchTerm) || x.Name.ToLower().Contains(filter.SearchTerm.ToLower());
+            Expression<Func<ItemModel, bool>> filterExpression = e =>
+                (string.IsNullOrEmpty(filter.SearchTerm) || e.Name.ToLower().Contains(filter.SearchTerm.ToLower())) &&
+                (!filter.ItemTypeId.HasValue || e.ItemTypeId == filter.ItemTypeId.Value) &&
+                !e.IsDeleted;
 
-            // Build sorting
-            Func<IQueryable<ItemModel>, IOrderedQueryable<ItemModel>> orderBy;
-            switch (filter.SortBy?.ToLower())
+            Func<IQueryable<ItemModel>, IOrderedQueryable<ItemModel>> orderBy = query =>
             {
-                case "name":
-                    orderBy = q => filter.SortDirection == "desc" ? q.OrderByDescending(x => x.Name) : q.OrderBy(x => x.Name);
-                    break;
-                case "createdat":
-                    orderBy = q => filter.SortDirection == "desc" ? q.OrderByDescending(x => x.CreatedAt) : q.OrderBy(x => x.CreatedAt);
-                    break;
-                default:
-                    orderBy = q => filter.SortDirection == "desc" ? q.OrderByDescending(x => x.Name) : q.OrderBy(x => x.Name);
-                    break;
-            }
+                if (!string.IsNullOrEmpty(filter.SortBy))
+                {
+                    if (filter.SortBy.Equals("Name", StringComparison.OrdinalIgnoreCase))
+                        return filter.SortDirection == "desc" ? query.OrderByDescending(e => e.Name) : query.OrderBy(e => e.Name);
+                    if (filter.SortBy.Equals("CreatedAt", StringComparison.OrdinalIgnoreCase))
+                        return filter.SortDirection == "desc" ? query.OrderByDescending(e => e.CreatedAt) : query.OrderBy(e => e.CreatedAt);
+                }
+                return query.OrderBy(e => e.Name);
+            };
 
-            var pagedResult = await _repo.GetPagedAsync(predicate, orderBy, filter.Page, filter.PageSize);
+            var pagedResult = await _itemModaRepo.GetPagedAsyncWithIncludes(
+                filterExpression,
+                orderBy,
+                filter.Page,
+                filter.PageSize,
+                e => e.ItemType);
 
-            // Map entities to DTOs
             return new PagedResultDto<ItemModelDto>
             {
                 Items = _mapper.Map<List<ItemModelDto>>(pagedResult.Items),
@@ -126,12 +129,12 @@ namespace ItemManagementSystem.Application.Implementation
         public async Task<ItemModelDto> UpdateAsync(int id, ItemModelDto dto)
         {
             dto.Id = id;
-            var entity = await _repo.GetByIdAsync(id);
+            var entity = await _itemModaRepo.GetByIdAsync(id);
             if (entity == null)
                 throw new NullObjectException(AppMessages.ItemModelNotFound);
 
             // if ItemModel with same name already exists in same ItemType, throw exception
-            var exists = (await _repo.FindAsync(
+            var exists = (await _itemModaRepo.FindAsync(
                 it => it.Name.ToLower() == dto.Name.ToLower() && it.ItemTypeId == dto.ItemTypeId && it.Id != id
             )).Any();
             if (exists)
@@ -144,25 +147,25 @@ namespace ItemManagementSystem.Application.Implementation
             _mapper.Map(dto, entity);
             entity.Quantity = existingQuantity;
 
-            await _repo.UpdateAsync(entity);
+            await _itemModaRepo.UpdateAsync(entity);
             return _mapper.Map<ItemModelDto>(entity);
         }
 
         public async Task<ItemModelCreateDto> UpdateAsync(int id, ItemModelCreateDto dto, int userId)
         {
-            var entity = await _repo.GetByIdAsync(id);
+            var entity = await _itemModaRepo.GetByIdAsync(id);
             if (entity == null)
                 throw new NullObjectException(AppMessages.ItemModelNotFound);
 
             // if ItemModel with same name already exists in same ItemType, throw exception
-            var exists = (await _repo.FindAsync(
+            var exists = (await _itemModaRepo.FindAsync(
                 it => it.Name.ToLower() == dto.Name.ToLower() && it.ItemTypeId == dto.ItemTypeId && it.Id != id
             )).Any();
             if (exists)
                 throw new AlreadyExistsException(AppMessages.ItemModelAlreadyExists);
 
             //if itemtype Id exist or not
-            bool isItemTypeIdExist = (await _repo.FindAsync(
+            bool isItemTypeIdExist = (await _itemModaRepo.FindAsync(
                 it => it.ItemTypeId == dto.ItemTypeId
             )).Any();
             if (!isItemTypeIdExist)
@@ -176,14 +179,14 @@ namespace ItemManagementSystem.Application.Implementation
             entity.ModifiedBy = userId;
             entity.UpdatedAt = DateTime.UtcNow;
 
-            await _repo.UpdateAsync(entity);
+            await _itemModaRepo.UpdateAsync(entity);
             return _mapper.Map<ItemModelCreateDto>(entity);
         }
 
         public async Task DeleteAsync(int id)
         {
             // 1. Get the ItemModel entity
-            var entity = await _repo.GetByIdAsync(id);
+            var entity = await _itemModaRepo.GetByIdAsync(id);
             if (entity == null)
                 throw new NullObjectException(AppMessages.ItemModelNotFound);
 
@@ -201,7 +204,7 @@ namespace ItemManagementSystem.Application.Implementation
                 }
             }
 
-            await _repo.DeleteAsync(entity);
+            await _itemModaRepo.DeleteAsync(entity);
         }
     }
 }

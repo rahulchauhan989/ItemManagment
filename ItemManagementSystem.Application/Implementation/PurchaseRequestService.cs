@@ -173,29 +173,25 @@ namespace ItemManagementSystem.Application.Implementation
 
         public async Task<IEnumerable<PurchaseRequestDto>> GetAllAsync(PurchaseRequestFilterDto filter)
         {
-            var query = await _purchaseRepo.GetAllAsync();
-
-            // Filtering
+            var filterProperties = new Dictionary<string, string?>();
             if (filter.CreatedBy.HasValue)
-                query = query.Where(x => x.CreatedBy == filter.CreatedBy);
-
+            {
+                filterProperties.Add("CreatedBy", filter.CreatedBy.Value.ToString());
+            }
             if (filter.Date.HasValue)
-                query = query.Where(x => x.Date.Date == filter.Date.Value.Date);
+            {
+                filterProperties.Add("Date", filter.Date.Value.ToString("yyyy-MM-dd"));
+            }
 
-            // Sorting
-            if (filter.SortBy == "Date")
-                query = filter.SortDirection == "desc" ? query.OrderByDescending(x => x.Date) : query.OrderBy(x => x.Date);
-            else
-                query = query.OrderByDescending(x => x.CreatedAt);
-
-            // Pagination
-            int skip = (filter.Page - 1) * filter.PageSize;
-            query = query.Skip(skip).Take(filter.PageSize);
-
-            var purchaseList = query.ToList();
+            var pagedResult = await _purchaseRepo.GetPagedWithMultipleFiltersAndSortAsync(
+                filterProperties,
+                filter.SortBy,
+                filter.SortDirection,
+                filter.Page,
+                filter.PageSize);
 
             var result = new List<PurchaseRequestDto>();
-            foreach (var entity in purchaseList)
+            foreach (var entity in pagedResult.Items)
             {
                 var dto = _mapper.Map<PurchaseRequestDto>(entity);
 

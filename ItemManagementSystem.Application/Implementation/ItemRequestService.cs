@@ -36,29 +36,38 @@ namespace ItemManagementSystem.Application.Implementation
         }
         public async Task<PagedResultDto<ItemRequestDto>> GetRequestsAsync(ItemsRequestFilterDto filter)
         {
-            Expression<Func<ItemRequest, bool>> predicate = r =>
-            !r.IsDeleted &&
-            (string.IsNullOrEmpty(filter.RequestNumber) || r.RequestNumber == filter.RequestNumber) &&
-            (string.IsNullOrEmpty(filter.UserName) || (r.User != null && r.User.Name.Contains(filter.UserName)));
-
-            Func<IQueryable<ItemRequest>, IOrderedQueryable<ItemRequest>> orderBy = filter.SortBy?.ToLower() switch
+            var filterProperties = new Dictionary<string, string?>();
+            if (!string.IsNullOrEmpty(filter.RequestNumber))
             {
-                "requestnumber" => q => filter.SortDirection == "desc" ? q.OrderByDescending(x => x.RequestNumber) : q.OrderBy(x => x.RequestNumber),
-                "username" => q => filter.SortDirection == "desc" ? q.OrderByDescending(x => x.User.Name) : q.OrderBy(x => x.User.Name),
-                _ => q => filter.SortDirection == "desc" ? q.OrderByDescending(x => x.CreatedAt) : q.OrderBy(x => x.CreatedAt)
-            };
+                filterProperties.Add("RequestNumber", filter.RequestNumber);
+            }
+            if (!string.IsNullOrEmpty(filter.UserName))
+            {
+                filterProperties.Add("User.Name", filter.UserName);
+            }
 
-            var paged = await _itemRequestRepo.GetPagedAsync(predicate, orderBy, filter.Page, filter.PageSize);
+            var paged = await _itemRequestRepo.GetPagedWithMultipleFiltersAndSortAsync(
+                filterProperties,
+                filter.SortBy,
+                filter.SortDirection,
+                filter.Page,
+                filter.PageSize);
 
             var result = new List<ItemRequestDto>();
 
             foreach (var entity in paged.Items)
             {
-                var items = await _requestItemRepo.FindAsync(i => i.ItemRequestId == entity.Id && !i.IsDeleted);
+                var items = await _requestItemRepo.FindIncludingAsync(
+                    i => i.ItemRequestId == entity.Id && !i.IsDeleted,
+                    new System.Linq.Expressions.Expression<Func<RequestItem, object>>[] { i => i.ItemModel, i => i.ItemModel.ItemType });
+
                 var itemDtos = items.Select(i => new RequestItemDto
                 {
                     ItemModelId = i.ItemModelId,
                     Quantity = i.Quantity,
+                    ItemModelName = i.ItemModel?.Name,
+                    ItemTypeId = i.ItemModel?.ItemTypeId ?? 0,
+                    ItemTypeName = i.ItemModel?.ItemType?.Name
                 }).ToList();
 
                 var user = (await _userRepo.FindAsync(u => u.Id == entity.UserId && u.Active)).FirstOrDefault();

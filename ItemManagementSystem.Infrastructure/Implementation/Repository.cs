@@ -1,8 +1,8 @@
-using System.Linq;
 using System.Linq.Expressions;
+using ItemManagementSystem.Domain.Constants;
 using ItemManagementSystem.Domain.DataContext;
-using ItemManagementSystem.Domain.DataModels;
 using ItemManagementSystem.Domain.Dto.Request;
+using ItemManagementSystem.Domain.Exception;
 using ItemManagementSystem.Infrastructure.Interface;
 using Microsoft.EntityFrameworkCore;
 
@@ -37,7 +37,7 @@ public class Repository<T> : IRepository<T> where T : class
 
     public async Task UpdateAsync(T entity)
     {
-         _entities.Update(entity);
+        _entities.Update(entity);
         await _context.SaveChangesAsync();
     }
 
@@ -67,21 +67,7 @@ public class Repository<T> : IRepository<T> where T : class
             foreach (var includeProperty in includes)
                 query = query.Include(includeProperty);
         }
-
-        // Soft delete support
-        var param = Expression.Parameter(typeof(T), "e");
-        var prop = Expression.Property(param, "IsDeleted");
-        var notDeleted = Expression.Not(prop);
-        var softDeleteLambda = Expression.Lambda<Func<T, bool>>(notDeleted, param);
-
-        var combined = Expression.Lambda<Func<T, bool>>(
-            Expression.AndAlso(
-                Expression.Invoke(predicate, param),
-                Expression.Invoke(softDeleteLambda, param)
-            ),
-            param
-        );
-        return await query.Where(combined).ToListAsync();
+        return await query.Where(predicate).ToListAsync();
     }
 
     public async Task<PagedResultDto<T>> GetPagedAsync(
@@ -94,6 +80,148 @@ public class Repository<T> : IRepository<T> where T : class
 
         var totalCount = await query.CountAsync();
         var items = await orderBy(query)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+
+        return new PagedResultDto<T>
+        {
+            Items = items,
+            TotalCount = totalCount,
+            Page = page,
+            PageSize = pageSize
+        };
+    }
+
+    public async Task<PagedResultDto<T>> GetPagedWithMultipleFiltersAndSortAsync(
+        Dictionary<string, string?>? filterProperties,
+        string? sortBy,
+        string? sortDirection,
+        int page,
+        int pageSize)
+    {
+        IQueryable<T> query = _entities;
+
+        var parameter = Expression.Parameter(typeof(T), "x");
+
+        // Build combined filter expression
+        Expression? combinedExpression = null;
+
+        if (filterProperties != null && filterProperties.Count > 0)
+        {
+            foreach (var filter in filterProperties)
+            {
+                if (string.IsNullOrEmpty(filter.Key) || string.IsNullOrEmpty(filter.Value))
+                    continue;
+
+                // Support nested properties like "User.Name"
+                string[] propertyNames = filter.Key.Split('.');
+                Expression property = parameter;
+                Type propertyType = typeof(T);
+                foreach (var propName in propertyNames)
+                {
+                    var propInfo = propertyType.GetProperty(propName);
+                    if (propInfo == null)
+                    {
+                        throw new CustomException(AppMessages.propertyNotFound);
+                    }
+                    property = Expression.Property(property, propInfo); //x.name
+                    propertyType = propInfo.PropertyType;
+                }
+
+                Expression filterExpression;
+
+                if (propertyType == typeof(string))
+                {
+                    var toLowerMethod = typeof(string).GetMethod("ToLower", Type.EmptyTypes);
+                    var containsMethod = typeof(string).GetMethod("Contains", new[] { typeof(string) });
+
+                    var searchTermExpression = Expression.Constant(filter.Value.ToLower());
+                    var toLowerExpression = Expression.Call(property, toLowerMethod!);
+                    filterExpression = Expression.Call(toLowerExpression, containsMethod!, searchTermExpression);
+                }
+                else
+                {
+                    // For non-string types, do equality comparison
+                    var typedValue = Convert.ChangeType(filter.Value, propertyType);
+                    var constant = Expression.Constant(typedValue, propertyType);
+                    filterExpression = Expression.Equal(property, constant);
+                }
+
+                if (combinedExpression == null)
+                    combinedExpression = filterExpression;
+                else
+                    combinedExpression = Expression.AndAlso(combinedExpression, filterExpression);
+            }
+        }
+
+        // Apply IsDeleted filter if exists
+        var notDeletedProperty = typeof(T).GetProperty("IsDeleted");
+        if (notDeletedProperty != null && notDeletedProperty.PropertyType == typeof(bool))
+        {
+            var isDeletedProperty = Expression.Property(parameter, "IsDeleted");
+            var notDeleted = Expression.Not(isDeletedProperty);
+
+            if (combinedExpression == null)
+                combinedExpression = notDeleted;
+            else
+                combinedExpression = Expression.AndAlso(combinedExpression, notDeleted);
+        }
+
+        if (combinedExpression != null)
+        {
+            var lambda = Expression.Lambda<Func<T, bool>>(combinedExpression, parameter);
+            query = query.Where(lambda);
+        }
+
+        // Sorting
+        if (!string.IsNullOrEmpty(sortBy))
+        {
+            var propertyInfo = typeof(T).GetProperty(sortBy);
+            if (propertyInfo == null)
+            {
+                throw new CustomException($"'{sortBy}' is not a valid property of type '{typeof(T).Name}'.");
+            }
+
+            var property = Expression.Property(parameter, propertyInfo);
+            var lambda = Expression.Lambda(property, parameter);
+
+            string methodName = string.Equals(sortDirection, "desc", StringComparison.OrdinalIgnoreCase) ? "OrderByDescending" : "OrderBy";
+
+            var resultExpression = Expression.Call(
+                typeof(Queryable),
+                methodName,
+                new Type[] { typeof(T), propertyInfo.PropertyType },
+                query.Expression,
+                Expression.Quote(lambda));
+
+            query = query.Provider.CreateQuery<T>(resultExpression);
+        }
+        else
+        {
+            // Default sorting by Name if exists
+            var nameProperty = typeof(T).GetProperty("Name");
+            if (nameProperty != null)
+            {
+                var property = Expression.Property(parameter, "Name");
+                var lambda = Expression.Lambda(property, parameter);
+
+                string methodName = string.Equals(sortDirection, "desc", StringComparison.OrdinalIgnoreCase) ? "OrderByDescending" : "OrderBy";
+
+                var resultExpression = Expression.Call(
+                    typeof(Queryable),
+                    methodName,
+                    new Type[] { typeof(T), nameProperty.PropertyType },
+                    query.Expression,
+                    Expression.Quote(lambda));
+
+                query = query.Provider.CreateQuery<T>(resultExpression);
+            }
+        }
+
+        var totalCount = await query.CountAsync();
+
+        var items = await query
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
             .ToListAsync();
