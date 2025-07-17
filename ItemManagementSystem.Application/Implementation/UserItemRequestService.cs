@@ -29,6 +29,52 @@ public class UserItemRequestService : IUserItemRequestService
         _mapper = mapper;
     }
 
+    public async Task SaveDraftAsync(int userId, CreateItemRequestDto dto)
+    {
+        var entity = new ItemRequest
+        {
+            UserId = userId,
+            RequestNumber = GenerateRequestNumber(),
+            Status = "Draft",
+            CreatedBy = userId,
+            CreatedAt = DateTime.UtcNow,
+        };
+        await _requestRepo.AddAsync(entity);
+
+        var requestItems = dto.Items
+            .Select(dtoItem =>
+            {
+                var entityItem = _mapper.Map<RequestItem>(dtoItem);
+                entityItem.ItemRequestId = entity.Id;
+                entityItem.CreatedBy = userId;
+                entityItem.CreatedAt = DateTime.UtcNow;
+                return entityItem;
+            }).ToList();
+
+        foreach (var requestItem in requestItems)
+        {
+            await _requestItemRepo.AddAsync(requestItem);
+        }
+    }
+
+    public async Task ChangeDraftToPendingAsync(int requestId, int userId)
+    {
+        var entity = await _requestRepo.GetByIdAsync(requestId);
+        if (entity == null || entity.IsDeleted)
+            throw new NullObjectException(AppMessages.ItemRequestNotFound);
+
+        if (entity.UserId != userId)
+            throw new CustomException(AppMessages.cannotEditOtherRequest);
+
+        if (entity.Status != "Draft")
+            throw new CustomException(AppMessages.OnlyDraftChangeToPending);
+
+        entity.Status = "Pending";
+        entity.UpdatedAt = DateTime.UtcNow;
+        entity.ModifiedBy = userId;
+        await _requestRepo.UpdateAsync(entity);
+    }
+
     // public async Task<ItemRequestResponseDto> CreateRequestAsync(int userId, CreateItemRequestDto dto)
     // {
     //     foreach (var reqItem in dto.Items)
@@ -96,14 +142,18 @@ public class UserItemRequestService : IUserItemRequestService
         };
         await _requestRepo.AddAsync(entity);
 
-        //  Use AutoMapper to map Dto to Entities
+        // AutoMapper to map Dto to Entities
         var requestItems = dto.Items
             .Select(dtoItem =>
             {
-                var entityItem = _mapper.Map<RequestItem>(dtoItem);
-                entityItem.ItemRequestId = entity.Id;
-                entityItem.CreatedBy = userId;
-                entityItem.CreatedAt = DateTime.UtcNow;
+                var entityItem = new RequestItem
+                {
+                    ItemRequestId = entity.Id,
+                    ItemModelId = dtoItem.ItemModelId,
+                    Quantity = dtoItem.Quantity,
+                    CreatedBy = userId,
+                    CreatedAt = DateTime.UtcNow
+                };
                 return entityItem;
             }).ToList();
 
@@ -112,7 +162,6 @@ public class UserItemRequestService : IUserItemRequestService
             await _requestItemRepo.AddAsync(requestItem);
         }
 
-        //  Prepare response: Only necessary fields
         return new ItemRequestResponseDto
         {
             Id = entity.Id,

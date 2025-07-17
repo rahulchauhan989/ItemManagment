@@ -1,6 +1,9 @@
+using ItemManagementSystem.Api.Helpers;
+using ItemManagementSystem.Application.Implementation;
 using ItemManagementSystem.Application.Interface;
 using ItemManagementSystem.Domain.Constants;
 using ItemManagementSystem.Domain.Dto;
+using ItemManagementSystem.Domain.Dto.Request;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,43 +13,33 @@ namespace ItemManagementSystem.Api.Controllers;
 [Route("api/user-item-requests")]
 public class UserItemRequestController : ControllerBase
 {
-    private readonly IUserItemRequestService _service;
+    private readonly IUserItemRequestService _UserItemReqService;
     private readonly IItemTypeService _itemTypeService;
 
-    public UserItemRequestController(IUserItemRequestService service, IItemTypeService itemTypeService)
+    private readonly IItemRequestService _itemRequestService;
+
+    public UserItemRequestController(IUserItemRequestService service, IItemTypeService itemTypeService, IItemRequestService itemRequestService)
     {
         _itemTypeService = itemTypeService;
-        _service = service;
+        _UserItemReqService = service;
+        _itemRequestService = itemRequestService;
     }
 
     [HttpPost]
     [Authorize]
     public async Task<ActionResult<ApiResponse>> CreateUserItemRequest([FromBody] CreateItemRequestDto dto)
     {
-        string? token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
-        int userId = _itemTypeService.ExtractUserIdFromToken(token);
-        var response = await _service.CreateRequestAsync(userId, dto);
+        int userId =  UserHelper.GetUserIdFromRequest(Request, _itemTypeService);
+        var response = await _UserItemReqService.CreateRequestAsync(userId, dto);
         return new ApiResponse(true, 201, response, AppMessages.UserCreatedItemReq);
     }
-
-
-    // [HttpGet("mine")]
-    // [Authorize]
-    // public async Task<ActionResult<ApiResponse>> GetMyItemRequests([FromQuery] Domain.Dto.Request.ItemRequestFilterDto filter)
-    // {
-    //     string? token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
-    //     int userId = _itemTypeService.ExtractUserIdFromToken(token);
-    //     var pagedList = await _service.GetRequestsByUserPagedAsync(userId, filter);
-    //     return new ApiResponse(true, 200, pagedList, AppMessages.GetMyRequests);
-    // }
 
     [HttpPost("mine")]
     [Authorize]
     public async Task<ActionResult<ApiResponse>> GetMyItemRequestsPost([FromBody] Domain.Dto.Request.ItemRequestFilterDto filter)
     {
-        string? token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
-        int userId = _itemTypeService.ExtractUserIdFromToken(token);
-        var pagedList = await _service.GetRequestsByUserPagedAsync(userId, filter);
+        int userId =  UserHelper.GetUserIdFromRequest(Request, _itemTypeService);
+        var pagedList = await _UserItemReqService.GetRequestsByUserPagedAsync(userId, filter);
         return new ApiResponse(true, 200, pagedList, AppMessages.GetMyRequests);
     }
     
@@ -54,9 +47,34 @@ public class UserItemRequestController : ControllerBase
     [Authorize]
     public async Task<ActionResult<ApiResponse>> CancelItemRequest(int requestId)
     {
-        string? token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
-        int userId = _itemTypeService.ExtractUserIdFromToken(token);
-        await _service.ChangeStatusAsync(requestId, userId);
+        int userId =  UserHelper.GetUserIdFromRequest(Request, _itemTypeService);
+        await _UserItemReqService.ChangeStatusAsync(requestId, userId);
         return new ApiResponse(true, 200, null, AppMessages.RequestCancelled);
+    }
+
+    [HttpPost("save-draft")]
+    [Authorize]
+    public async Task<ActionResult<ApiResponse>> SaveDraft([FromBody] CreateItemRequestDto dto)
+    {
+        int userId =  UserHelper.GetUserIdFromRequest(Request, _itemTypeService);
+        await _UserItemReqService.SaveDraftAsync(userId, dto);
+        return new ApiResponse(true, 200, null, AppMessages.ItemSavedAsDraft);
+    }
+
+    [HttpPut("draft-to-pending/{id}")]
+    [Authorize]
+    public async Task<ActionResult<ApiResponse>> DraftToPending(int id)
+    {
+        int userId =  UserHelper.GetUserIdFromRequest(Request, _itemTypeService);
+        await _UserItemReqService.ChangeDraftToPendingAsync(id, userId);
+        return new ApiResponse(true, 200, null, AppMessages.ItemRequestStatusDraftToPending);
+    }
+
+    [HttpPut("{id}/edit")]
+    public async Task<ActionResult<ApiResponse>> EditItemRequest(int id, [FromBody] ItemRequestEditDto editDto)
+    {
+        int userId =  UserHelper.GetUserIdFromRequest(Request, _itemTypeService);
+        await _itemRequestService.EditItemRequestAsync(id, editDto, userId);
+        return new ApiResponse(true, 200, null, AppMessages.ItemRequestUpdated);
     }
 }

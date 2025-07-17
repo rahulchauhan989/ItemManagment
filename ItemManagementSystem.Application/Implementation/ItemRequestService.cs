@@ -139,8 +139,63 @@ namespace ItemManagementSystem.Application.Implementation
             request.Status = status;
             request.UpdatedAt = DateTime.UtcNow;
             request.ModifiedBy = userId;
-            // Optionally save comment somewhere if you want (add a field to ItemRequest table if needed)
             request.Comment = comment;
+            await _itemRequestRepo.UpdateAsync(request);
+        }
+        public async Task EditItemRequestAsync(int requestId, ItemRequestEditDto editDto, int userId)
+        {
+            var request = await _itemRequestRepo.GetByIdAsync(requestId);
+            if (request == null)
+                throw new NullObjectException(AppMessages.ItemRequestNotFound);
+
+            if (request.UserId != userId)
+                throw new CustomException(AppMessages.cannotEditOtherRequest);
+
+            if (request.Status != "Pending")
+                throw new CustomException(AppMessages.OnlyPendingReqEditable);
+
+            var existingItems = await _requestItemRepo.FindAsync(i => i.ItemRequestId == requestId && !i.IsDeleted);
+            var existingItemsDict = existingItems.ToDictionary(i => i.ItemModelId);
+
+            foreach (var itemEdit in editDto.Items)
+            {
+                if (itemEdit.Quantity > 0)
+                {
+                    var item = await _itemModelRepo.GetByIdAsync(itemEdit.ItemModelId);
+                    if (item == null || item.IsDeleted)
+                        throw new CustomException(AppMessages.ItemModelNotFound);
+                    if (itemEdit.Quantity > item.Quantity)
+                        throw new CustomException($"Requested quantity for item {item.Name} exceeds available stock.");
+
+                    if (existingItemsDict.TryGetValue(itemEdit.ItemModelId, out var existingItem))
+                    {
+                        existingItem.Quantity = itemEdit.Quantity;
+                        await _requestItemRepo.UpdateAsync(existingItem);
+                    }
+                    else
+                    {
+                        var newItem = new RequestItem
+                        {
+                            ItemRequestId = requestId,
+                            ItemModelId = itemEdit.ItemModelId,
+                            Quantity = itemEdit.Quantity,
+                            IsDeleted = false
+                        };
+                        await _requestItemRepo.AddAsync(newItem);
+                    }
+                }
+                else if (itemEdit.Quantity == 0)
+                {
+                    if (existingItemsDict.TryGetValue(itemEdit.ItemModelId, out var existingItem))
+                    {
+                        existingItem.IsDeleted = true;
+                        await _requestItemRepo.UpdateAsync(existingItem);
+                    }
+                }
+            }
+
+            request.UpdatedAt = DateTime.UtcNow;
+            request.ModifiedBy = userId;
             await _itemRequestRepo.UpdateAsync(request);
         }
     }

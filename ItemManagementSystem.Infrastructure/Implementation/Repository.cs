@@ -104,7 +104,6 @@ public class Repository<T> : IRepository<T> where T : class
 
         var parameter = Expression.Parameter(typeof(T), "x");
 
-        // Build combined filter expression
         Expression? combinedExpression = null;
 
         if (filterProperties != null && filterProperties.Count > 0)
@@ -114,7 +113,6 @@ public class Repository<T> : IRepository<T> where T : class
                 if (string.IsNullOrEmpty(filter.Key) || string.IsNullOrEmpty(filter.Value))
                     continue;
 
-                // Support nested properties like "User.Name"
                 string[] propertyNames = filter.Key.Split('.');
                 Expression property = parameter;
                 Type propertyType = typeof(T);
@@ -142,7 +140,6 @@ public class Repository<T> : IRepository<T> where T : class
                 }
                 else
                 {
-                    // For non-string types, do equality comparison
                     var typedValue = Convert.ChangeType(filter.Value, propertyType);
                     var constant = Expression.Constant(typedValue, propertyType);
                     filterExpression = Expression.Equal(property, constant);
@@ -155,7 +152,6 @@ public class Repository<T> : IRepository<T> where T : class
             }
         }
 
-        // Apply IsDeleted filter if exists
         var notDeletedProperty = typeof(T).GetProperty("IsDeleted");
         if (notDeletedProperty != null && notDeletedProperty.PropertyType == typeof(bool))
         {
@@ -199,7 +195,6 @@ public class Repository<T> : IRepository<T> where T : class
         }
         else
         {
-            // Default sorting by Name if exists
             var nameProperty = typeof(T).GetProperty("Name");
             if (nameProperty != null)
             {

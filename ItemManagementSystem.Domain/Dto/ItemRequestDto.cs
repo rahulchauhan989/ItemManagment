@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 
 namespace ItemManagementSystem.Domain.Dto
 
@@ -7,8 +8,6 @@ namespace ItemManagementSystem.Domain.Dto
         public int Id { get; set; }
         public string? RequestNumber { get; set; }
         public string? UserName { get; set; }
-
-        public string? ItemTypeName { get; set; }
         public int UserId { get; set; }
         public string? Status { get; set; }
         public DateTime CreatedAt { get; set; }
@@ -19,12 +18,23 @@ namespace ItemManagementSystem.Domain.Dto
 
     public class RequestItemDto
     {
+        [Required]
         public int ItemModelId { get; set; }
+        [Required]
+        [Range(1, int.MaxValue, ErrorMessage = "Quantity must be greater than 0.")]
         public int Quantity { get; set; }
         public int? ItemTypeId { get; set; }
         public string? ItemTypeName { get; set; }
         public string? ItemModelName { get; set; }
+    }
 
-
+    public class ItemsRequestDto
+    {
+        [Required]
+        public int ItemModelId { get; set; }
+        
+        [Required]
+        [Range(1, int.MaxValue, ErrorMessage = "Quantity must be greater than 0.")]
+        public int Quantity { get; set; }
     }
 }

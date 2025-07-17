@@ -52,9 +52,25 @@ public static class AppMessages
     public const string RequestCancelled = "Request cancelled successfully.";
     public const string RejectRequest = "Only Pending requests can be approved or rejected.";
     public const string propertyNotFound = "Property not found in the request.";
-
     public const string InvalidReturnItems = "Return request items cannot be null or empty.";
-
     public const string ReturnRequestNotFound = "Return request not found.";
+    public const string cannotEditOtherRequest= "You can only edit your own requests.";
+    public const string OnlyPendingReqEditable = "Only Pending requests can be edited.";
+    public const string cannotCancelOtherRequest = "You can only cancel your own requests.";
+    public const string OnlyPendingReqCancelable = "Only Pending requests can be canceled.";
+    public const string ReturnRequestCreated = "Return request created successfully.";
+    public const string ReturnRequestUpdated = "Return request updated successfully.";
+    public const string ReturnRequestCancelled = "Return request canceled successfully.";
+    public const string OnlyDraftChangeToPending = "Only Draft requests can be changed to Pending.";
+    public const string InvalidRequest = "Invalid request.";
+    public const string ReturnRequestStatusUpdated = "Return request status updated successfully.";
+    public const string ReturnRequestsavedAsDraft = "Return request saved as draft successfully.";
+    public const string GetMyReturnRequests = "Your return requests retrieved successfully.";
+    public const string GetAllReturnRequests = "All return requests retrieved successfully.";
+    public const string ReturnRequestDraftSaved = "Return request draft saved successfully.";
+    public const string ReturnRequestDraftToPending = "Return request status changed from draft to pending successfully.";
+    public const string ItemSavedAsDraft = "Item request saved as draft successfully.";
+    public const string ItemRequestStatusDraftToPending = "Item request status changed from draft to pending successfully.";
+    public const string ItemRequestUpdated = "Item request updated successfully.";
 
 }

@@ -1,8 +1,10 @@
 namespace ItemManagementSystem.Domain.Dto.Request;
 
+using ItemManagementSystem.Domain.Dto.Request;
+
 public class ReturnRequestCreateDto
 {
-    public List<ReturnRequestItemDto> Items { get; set; } = new();
+    public List<CreateReturnRequestItemDto> Items { get; set; } = new();
 }
 
 public class ReturnRequestItemDto

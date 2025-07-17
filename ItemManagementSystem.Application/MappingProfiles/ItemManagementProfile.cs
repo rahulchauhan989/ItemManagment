@@ -46,5 +46,11 @@ public class ItemManagementProfile : Profile
 
     CreateMap<ReturnRequest, ReturnRequestDto>().ReverseMap();
     CreateMap<ReturnRequestItem, ReturnRequestItemDto>().ReverseMap();
+
+    CreateMap<CreateRequestItemDto, RequestItem>()
+        .ForMember(dest => dest.Id, opt => opt.Ignore())
+        .ForMember(dest => dest.ItemRequestId, opt => opt.Ignore())
+        .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
+        .ForMember(dest => dest.CreatedBy, opt => opt.Ignore());
   }
 }

@@ -1,0 +1,17 @@
+D:\ItemManagementSystem\ItemManagementSystem.Application\bin\Debug\net7.0\ItemManagementSystem.Application.deps.json
+D:\ItemManagementSystem\ItemManagementSystem.Application\bin\Debug\net7.0\ItemManagementSystem.Application.dll
+D:\ItemManagementSystem\ItemManagementSystem.Application\bin\Debug\net7.0\ItemManagementSystem.Application.pdb
+D:\ItemManagementSystem\ItemManagementSystem.Application\bin\Debug\net7.0\ItemManagementSystem.Domain.dll
+D:\ItemManagementSystem\ItemManagementSystem.Application\bin\Debug\net7.0\ItemManagementSystem.Infrastructure.dll
+D:\ItemManagementSystem\ItemManagementSystem.Application\bin\Debug\net7.0\ItemManagementSystem.Domain.pdb
+D:\ItemManagementSystem\ItemManagementSystem.Application\bin\Debug\net7.0\ItemManagementSystem.Infrastructure.pdb
+D:\ItemManagementSystem\ItemManagementSystem.Application\obj\Debug\net7.0\ItemManagementSystem.Application.csproj.AssemblyReference.cache
+D:\ItemManagementSystem\ItemManagementSystem.Application\obj\Debug\net7.0\ItemManagementSystem.Application.GeneratedMSBuildEditorConfig.editorconfig
+D:\ItemManagementSystem\ItemManagementSystem.Application\obj\Debug\net7.0\ItemManagementSystem.Application.AssemblyInfoInputs.cache
+D:\ItemManagementSystem\ItemManagementSystem.Application\obj\Debug\net7.0\ItemManagementSystem.Application.AssemblyInfo.cs
+D:\ItemManagementSystem\ItemManagementSystem.Application\obj\Debug\net7.0\ItemManagementSystem.Application.csproj.CoreCompileInputs.cache
+D:\ItemManagementSystem\ItemManagementSystem.Application\obj\Debug\net7.0\ItemManagementSystem.Application.csproj.CopyComplete
+D:\ItemManagementSystem\ItemManagementSystem.Application\obj\Debug\net7.0\ItemManagementSystem.Application.dll
+D:\ItemManagementSystem\ItemManagementSystem.Application\obj\Debug\net7.0\refint\ItemManagementSystem.Application.dll
+D:\ItemManagementSystem\ItemManagementSystem.Application\obj\Debug\net7.0\ItemManagementSystem.Application.pdb
+D:\ItemManagementSystem\ItemManagementSystem.Application\obj\Debug\net7.0\ref\ItemManagementSystem.Application.dll

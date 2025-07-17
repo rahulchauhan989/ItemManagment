@@ -106,6 +106,8 @@ namespace ItemManagementSystem.Application.Implementation
                         return filter.SortDirection == "desc" ? query.OrderByDescending(e => e.Name) : query.OrderBy(e => e.Name);
                     if (filter.SortBy.Equals("CreatedAt", StringComparison.OrdinalIgnoreCase))
                         return filter.SortDirection == "desc" ? query.OrderByDescending(e => e.CreatedAt) : query.OrderBy(e => e.CreatedAt);
+                    if (filter.SortBy.Equals("Quantity", StringComparison.OrdinalIgnoreCase))
+                        return filter.SortDirection == "desc" ? query.OrderByDescending(e => e.Quantity) : query.OrderBy(e => e.Quantity);
                 }
                 return query.OrderBy(e => e.Name);
             };
