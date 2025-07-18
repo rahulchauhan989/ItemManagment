@@ -8,6 +8,6 @@ public interface IPurchaseRequestService
     Task<PurchaseRequestDto> CreateAsync(PurchaseRequestDto dto);
 
     Task<PurchaseRequestDto> CreateAsync(PurchaseRequestCreateDto dto, int userId);
-    Task<PurchaseRequestDto?> GetByIdAsync(int id);
-    Task<IEnumerable<PurchaseRequestDto>> GetAllAsync(PurchaseRequestFilterDto filter);
+    Task<PurchaseRequestResponseDto?> GetByIdAsync(int id);
+    Task<IEnumerable<PurchaseRequestResponseDto>> GetAllAsync(PurchaseRequestFilterDto filter);
 }

@@ -87,6 +87,11 @@ namespace ItemManagementSystem.Application.Implementation
             return tokenHandler.WriteToken(token);
         }
 
+        public async Task<bool> isEmailExist(string email)
+        {
+            var user = (await _userRepo.FindAsync(u => u.Email == email && u.Active)).FirstOrDefault();
+            return user != null;
+        }
 
         public async Task<bool> ResetPasswordAsync(string token, string newPassword)
         {

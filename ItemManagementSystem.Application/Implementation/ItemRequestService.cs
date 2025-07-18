@@ -6,6 +6,8 @@ using ItemManagementSystem.Domain.DataContext;
 using ItemManagementSystem.Domain.DataModels;
 using ItemManagementSystem.Domain.Dto;
 using ItemManagementSystem.Domain.Dto.Request;
+using ItemRequestResponseDto = ItemManagementSystem.Domain.Dto.Request.ItemRequestResponseDto;
+using RequestItemResponseDto = ItemManagementSystem.Domain.Dto.Request.RequestItemResponseDto;
 using ItemManagementSystem.Domain.Exception;
 using ItemManagementSystem.Infrastructure.Interface;
 using Microsoft.EntityFrameworkCore;
@@ -34,7 +36,7 @@ namespace ItemManagementSystem.Application.Implementation
             _mapper = mapper;
             _userRepo = userRepo;
         }
-        public async Task<PagedResultDto<ItemRequestDto>> GetRequestsAsync(ItemsRequestFilterDto filter)
+        public async Task<PagedResultDto<ItemRequestResponseDto>> GetRequestsAsync(ItemsRequestFilterDto filter)
         {
             var filterProperties = new Dictionary<string, string?>();
             if (!string.IsNullOrEmpty(filter.RequestNumber))
@@ -53,7 +55,7 @@ namespace ItemManagementSystem.Application.Implementation
                 filter.Page,
                 filter.PageSize);
 
-            var result = new List<ItemRequestDto>();
+            var result = new List<ItemRequestResponseDto>();
 
             foreach (var entity in paged.Items)
             {
@@ -61,12 +63,10 @@ namespace ItemManagementSystem.Application.Implementation
                     i => i.ItemRequestId == entity.Id && !i.IsDeleted,
                     new System.Linq.Expressions.Expression<Func<RequestItem, object>>[] { i => i.ItemModel, i => i.ItemModel.ItemType });
 
-                var itemDtos = items.Select(i => new RequestItemDto
+                var itemDtos = items.Select(i => new RequestItemResponseDto
                 {
-                    ItemModelId = i.ItemModelId,
                     Quantity = i.Quantity,
                     ItemModelName = i.ItemModel?.Name,
-                    ItemTypeId = i.ItemModel?.ItemTypeId ?? 0,
                     ItemTypeName = i.ItemModel?.ItemType?.Name
                 }).ToList();
 
@@ -74,19 +74,17 @@ namespace ItemManagementSystem.Application.Implementation
                 if (user == null)
                     throw new NullObjectException(AppMessages.UserNotFound);
 
-                result.Add(new ItemRequestDto
+                result.Add(new ItemRequestResponseDto
                 {
                     Id = entity.Id,
                     RequestNumber = entity.RequestNumber!,
                     Status = entity.Status!,
                     CreatedAt = entity.CreatedAt,
-                    UserId = entity.UserId,
-                    UserName = user.Name,
                     Items = itemDtos
                 });
             }
 
-            return new PagedResultDto<ItemRequestDto>
+            return new PagedResultDto<ItemRequestResponseDto>
             {
                 Items = result,
                 TotalCount = paged.TotalCount,
@@ -131,6 +129,10 @@ namespace ItemManagementSystem.Application.Implementation
                     var itemModel = await _itemModelRepo.GetByIdAsync(item.ItemModelId);
                     if (itemModel == null)
                         throw new NullObjectException($"ItemModel with ID {item.ItemModelId} not found.");
+                    //check quantity Of ItemModal with Request Quantity
+                    if (itemModel.Quantity < item.Quantity)
+                        throw new CustomException($"Not enough quantity for item: {itemModel.Name}");
+
                     itemModel.Quantity -= item.Quantity;
                     await _itemModelRepo.UpdateAsync(itemModel);
                 }

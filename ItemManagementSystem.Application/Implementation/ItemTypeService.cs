@@ -9,6 +9,7 @@ using ItemManagementSystem.Domain.Dto;
 using ItemManagementSystem.Domain.Dto.Request;
 using ItemManagementSystem.Domain.Exception;
 using ItemManagementSystem.Infrastructure.Interface;
+using Microsoft.EntityFrameworkCore;
 
 namespace ItemManagementSystem.Application.Implementation
 {
@@ -64,7 +65,7 @@ namespace ItemManagementSystem.Application.Implementation
             return _mapper.Map<ItemTypeCreateRequest>(created);
         }
 
-        public async Task<ItemTypeDto?> GetByIdAsync(int id)
+        public async Task<ItemTypeResponseDto?> GetByIdAsync(int id)
         {
             var entity = await _repo.GetByIdAsync(id);
             if (entity == null)
@@ -72,7 +73,7 @@ namespace ItemManagementSystem.Application.Implementation
 
             if (entity.IsDeleted)
                 throw new NullObjectException(AppMessages.ItemTypeNotFound);
-            return _mapper.Map<ItemTypeDto>(entity);
+            return _mapper.Map<ItemTypeResponseDto>(entity);
         }
 
         public async Task<IEnumerable<ItemTypeDto>> GetAllAsync()
@@ -86,7 +87,7 @@ namespace ItemManagementSystem.Application.Implementation
             return _mapper.Map<IEnumerable<ItemTypeDto>>(filtered);
         }
 
-        public async Task<PagedResultDto<ItemTypeDto>> GetPagedItemTypesAsync(ItemTypeFilterDto filter)
+        public async Task<PagedResultDto<ItemTypePagedDto>> GetPagedItemTypesAsync(ItemTypeFilterDto filter)
         {
             var filterProperties = new Dictionary<string, string?>();
             if (!string.IsNullOrEmpty(filter.SearchTerm))
@@ -96,14 +97,16 @@ namespace ItemManagementSystem.Application.Implementation
 
             var pagedResult = await _repo.GetPagedWithMultipleFiltersAndSortAsync(
                 filterProperties,
-                filter.SortBy,
+                string.IsNullOrEmpty(filter.SortBy) ? "Name" : filter.SortBy,
                 filter.SortDirection,
                 filter.Page,
                 filter.PageSize);
 
-            return new PagedResultDto<ItemTypeDto>
+            var mappedItems = _mapper.Map<IEnumerable<ItemTypePagedDto>>(pagedResult.Items);
+
+            return new PagedResultDto<ItemTypePagedDto>
             {
-                Items = _mapper.Map<IEnumerable<ItemTypeDto>>(pagedResult.Items),
+                Items = mappedItems,
                 TotalCount = pagedResult.TotalCount,
                 Page = pagedResult.Page,
                 PageSize = pagedResult.PageSize

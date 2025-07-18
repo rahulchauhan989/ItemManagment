@@ -16,6 +16,7 @@ namespace ItemManagementSystem.Application.Implementation
         private readonly IRepository<ItemModel> _itemModelRepo;
         private readonly IRepository<ItemType> _itemTypeRepo;
         private readonly IRepository<PurchaseRequestItem> _purchaseItemRepo;
+        private readonly IRepository<User> _userRepo;
         private readonly IMapper _mapper;
 
         public PurchaseRequestService(
@@ -23,12 +24,14 @@ namespace ItemManagementSystem.Application.Implementation
             IRepository<ItemModel> itemModelRepo,
             IRepository<PurchaseRequestItem> purchaseItemRepo,
             IRepository<ItemType> itemTypeRepo,
+            IRepository<User> userRepo,
             IMapper mapper)
         {
             _purchaseRepo = purchaseRepo;
             _itemModelRepo = itemModelRepo;
             _purchaseItemRepo = purchaseItemRepo;
             _itemTypeRepo = itemTypeRepo;
+            _userRepo = userRepo;
             _mapper = mapper;
         }
 
@@ -131,24 +134,30 @@ namespace ItemManagementSystem.Application.Implementation
             return resultDto;
         }
 
-        public async Task<PurchaseRequestDto?> GetByIdAsync(int id)
+        public async Task<PurchaseRequestResponseDto?> GetByIdAsync(int id)
         {
             var entity = await _purchaseRepo.GetByIdAsync(id);
             if (entity == null)
                 throw new NullObjectException(AppMessages.PurchaseRequestNotFound);
 
-            var dto = _mapper.Map<PurchaseRequestDto>(entity);
+            var user = await _userRepo.GetByIdAsync(entity.CreatedBy );
+            string? createdByUserName = user?.Name;
 
-            // 1. Fetch related PurchaseRequestItems
+            var dto = new PurchaseRequestResponseDto
+            {
+                Id = entity.Id,
+                Date = entity.Date,
+                InvoiceNumber = entity.InvoiceNumber,
+                CreatedBy = createdByUserName,
+                Items = new List<PurchaseRequestItemResponseDto>()
+            };
+
             var items = await _purchaseItemRepo.FindAsync(x => x.PurchaseRequestId == entity.Id);
 
-            // 2. For each item, fetch ItemModel and ItemType
-            var itemDtos = new List<PurchaseRequestItemDto>();
             foreach (var item in items)
             {
                 var itemModel = await _itemModelRepo.GetByIdAsync(item.ItemModelId);
                 string? itemModelName = itemModel?.Name;
-                int itemTypeId = itemModel?.ItemTypeId ?? 0;
                 string? itemTypeName = null;
 
                 if (itemModel != null)
@@ -157,21 +166,18 @@ namespace ItemManagementSystem.Application.Implementation
                     itemTypeName = itemType?.Name;
                 }
 
-                itemDtos.Add(new PurchaseRequestItemDto
+                dto.Items.Add(new PurchaseRequestItemResponseDto
                 {
-                    ItemModelId = item.ItemModelId,
                     Name = itemModelName,
                     Quantity = item.Quantity,
-                    ItemTypeId = itemTypeId,
                     ItemType = itemTypeName
                 });
             }
 
-            dto.Items = itemDtos;
             return dto;
         }
 
-        public async Task<IEnumerable<PurchaseRequestDto>> GetAllAsync(PurchaseRequestFilterDto filter)
+        public async Task<IEnumerable<PurchaseRequestResponseDto>> GetAllAsync(PurchaseRequestFilterDto filter)
         {
             var filterProperties = new Dictionary<string, string?>();
             if (filter.CreatedBy.HasValue)
@@ -190,18 +196,27 @@ namespace ItemManagementSystem.Application.Implementation
                 filter.Page,
                 filter.PageSize);
 
-            var result = new List<PurchaseRequestDto>();
+            var result = new List<PurchaseRequestResponseDto>();
             foreach (var entity in pagedResult.Items)
             {
-                var dto = _mapper.Map<PurchaseRequestDto>(entity);
+                var user = await _userRepo.GetByIdAsync(entity.CreatedBy);
+                string? createdByUserName = user?.Name;
+
+                var dto = new PurchaseRequestResponseDto
+                {
+                    Id = entity.Id,
+                    Date = entity.Date,
+                    InvoiceNumber = entity.InvoiceNumber,
+                    CreatedBy = createdByUserName,
+                    Items = new List<PurchaseRequestItemResponseDto>()
+                };
 
                 var items = await _purchaseItemRepo.FindAsync(x => x.PurchaseRequestId == entity.Id);
-                var itemDtos = new List<PurchaseRequestItemDto>();
+
                 foreach (var item in items)
                 {
                     var itemModel = await _itemModelRepo.GetByIdAsync(item.ItemModelId);
                     string? itemModelName = itemModel?.Name;
-                    int itemTypeId = itemModel?.ItemTypeId ?? 0;
                     string? itemTypeName = null;
 
                     if (itemModel != null)
@@ -210,16 +225,13 @@ namespace ItemManagementSystem.Application.Implementation
                         itemTypeName = itemType?.Name;
                     }
 
-                    itemDtos.Add(new PurchaseRequestItemDto
+                    dto.Items.Add(new PurchaseRequestItemResponseDto
                     {
-                        ItemModelId = item.ItemModelId,
                         Name = itemModelName,
                         Quantity = item.Quantity,
-                        ItemTypeId = itemTypeId,
                         ItemType = itemTypeName
                     });
                 }
-                dto.Items = itemDtos;
                 result.Add(dto);
             }
             return result;

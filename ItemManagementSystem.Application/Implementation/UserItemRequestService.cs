@@ -29,6 +29,36 @@ public class UserItemRequestService : IUserItemRequestService
         _mapper = mapper;
     }
 
+    public async Task<ItemManagementSystem.Domain.Dto.Request.ItemRequestWithIdsResponseDto?> GetUserItemRequestByIdAsync(int id)
+    {
+        var entity = await _requestRepo.GetByIdAsync(id);
+        if (entity == null || entity.IsDeleted)
+            return null;
+
+        var items = await _requestItemRepo.FindIncludingAsync(
+            i => i.ItemRequestId == entity.Id && !i.IsDeleted,
+            new System.Linq.Expressions.Expression<Func<RequestItem, object>>[] { i => i.ItemModel, i => i.ItemModel.ItemType });
+
+        var response = new ItemManagementSystem.Domain.Dto.Request.ItemRequestWithIdsResponseDto
+        {
+            Id = entity.Id,
+            RequestNumber = entity.RequestNumber,
+            Status = entity.Status,
+            CreatedAt = entity.CreatedAt,
+            Items = items.Select(i => new ItemManagementSystem.Domain.Dto.Request.RequestItemWithIdsResponseDto
+            {
+                ItemModelId = i.ItemModelId,
+                ItemTypeId = i.ItemModel?.ItemTypeId ?? 0,
+                ItemModelName = i.ItemModel?.Name,
+                ItemTypeName = i.ItemModel?.ItemType?.Name,
+                Quantity = i.Quantity
+            }).ToList()
+        };
+
+        return response;
+    }
+
+   
     public async Task SaveDraftAsync(int userId, CreateItemRequestDto dto)
     {
         var entity = new ItemRequest
@@ -75,166 +105,117 @@ public class UserItemRequestService : IUserItemRequestService
         await _requestRepo.UpdateAsync(entity);
     }
 
-    // public async Task<ItemRequestResponseDto> CreateRequestAsync(int userId, CreateItemRequestDto dto)
-    // {
-    //     foreach (var reqItem in dto.Items)
-    //     {
-    //         var item = await _itemModelRepo.GetByIdAsync(reqItem.ItemModelId);
-    //         if (item == null || item.IsDeleted)
-    //             throw new CustomException(AppMessages.ItemModelNotFound);
-    //         if (reqItem.Quantity > item.Quantity)
-    //             throw new InvalidOperationException($"Requested quantity for item {item.Name} exceeds available stock.");
-    //     }
-
-    //     var entity = new ItemRequest
-    //     {
-    //         UserId = userId,
-    //         RequestNumber = GenerateRequestNumber(),
-    //         Status = "Pending",
-    //         CreatedBy = userId,
-    //         CreatedAt = DateTime.UtcNow,
-    //     };
-    //     await _requestRepo.AddAsync(entity);
-
-    //     // Add request items
-    //     foreach (var reqItem in dto.Items)
-    //     {
-    //         var requestItem = new RequestItem
-    //         {
-    //             RequestId = entity.Id,
-    //             ItemModelId = reqItem.ItemModelId,
-    //             Quantity = reqItem.Quantity,
-    //             CreatedBy = userId,
-    //             CreatedAt = DateTime.UtcNow,
-    //         };
-    //         await _requestItemRepo.AddAsync(requestItem);
-    //     }
-
-    //     var response = new ItemRequestResponseDto
-    //     {
-    //         Id = entity.Id,
-    //         RequestNumber = entity.RequestNumber,
-    //         Status = entity.Status,
-    //         CreatedAt = entity.CreatedAt,
-    //         Items = dto.Items
-    //     };
-    //     return response;
-    // }
-
-    public async Task<ItemRequestResponseDto> CreateRequestAsync(int userId, CreateItemRequestDto dto)
-    {
-        foreach (var reqItem in dto.Items)
+        public async Task<ItemManagementSystem.Domain.Dto.Request.ItemRequestResponseDto> CreateRequestAsync(int userId, CreateItemRequestDto dto)
         {
-            var item = await _itemModelRepo.GetByIdAsync(reqItem.ItemModelId);
-            if (item == null || item.IsDeleted)
-                throw new CustomException(AppMessages.ItemModelNotFound);
-            if (reqItem.Quantity > item.Quantity)
-                throw new CustomException($"Requested quantity for item {item.Name} exceeds available stock.");
-        }
-
-        var entity = new ItemRequest
-        {
-            UserId = userId,
-            RequestNumber = GenerateRequestNumber(),
-            Status = "Pending",
-            CreatedBy = userId,
-            CreatedAt = DateTime.UtcNow,
-        };
-        await _requestRepo.AddAsync(entity);
-
-        // AutoMapper to map Dto to Entities
-        var requestItems = dto.Items
-            .Select(dtoItem =>
+            foreach (var reqItem in dto.Items)
             {
-                var entityItem = new RequestItem
-                {
-                    ItemRequestId = entity.Id,
-                    ItemModelId = dtoItem.ItemModelId,
-                    Quantity = dtoItem.Quantity,
-                    CreatedBy = userId,
-                    CreatedAt = DateTime.UtcNow
-                };
-                return entityItem;
-            }).ToList();
-
-        foreach (var requestItem in requestItems)
-        {
-            await _requestItemRepo.AddAsync(requestItem);
-        }
-
-        return new ItemRequestResponseDto
-        {
-            Id = entity.Id,
-            RequestNumber = entity.RequestNumber,
-            Status = entity.Status,
-            CreatedAt = entity.CreatedAt,
-            Items = dto.Items.Select(item => new RequestItemDto
-            {
-                ItemModelId = item.ItemModelId,
-                Quantity = item.Quantity
-            }).ToList()
-        };
-    }
- 
-        public async Task<PagedResultDto<ItemRequestResponseDto>> GetRequestsByUserPagedAsync(int userId, Domain.Dto.Request.ItemRequestFilterDto filter)
-        {
-            var filterProperties = new Dictionary<string, string?>();
-            filterProperties.Add("UserId", userId.ToString());
-            if (!string.IsNullOrEmpty(filter.Status))
-            {
-                filterProperties.Add("Status", filter.Status);
-            }
-            if (!string.IsNullOrEmpty(filter.SearchTerm))
-            {
-                filterProperties.Add("RequestNumber", filter.SearchTerm);
+                var item = await _itemModelRepo.GetByIdAsync(reqItem.ItemModelId);
+                if (item == null || item.IsDeleted)
+                    throw new CustomException(AppMessages.ItemModelNotFound);
+                if (reqItem.Quantity > item.Quantity)
+                    throw new CustomException($"Requested quantity for item {item.Name} exceeds available stock.");
             }
 
-            var pagedResult = await _requestRepo.GetPagedWithMultipleFiltersAndSortAsync(
-                filterProperties,
-                filter.SortBy,
-                filter.SortDirection,
-                filter.Page,
-                filter.PageSize);
-
-            var resultItems = new List<ItemRequestResponseDto>();
-            foreach (var r in pagedResult.Items)
+            var entity = new ItemRequest
             {
-                var items = await _requestItemRepo.FindIncludingAsync(
-                    i => i.ItemRequestId == r.Id && !i.IsDeleted,
-                    new System.Linq.Expressions.Expression<Func<RequestItem, object>>[] { i => i.ItemModel, i => i.ItemModel.ItemType });
+                UserId = userId,
+                RequestNumber = GenerateRequestNumber(),
+                Status = "Pending",
+                CreatedBy = userId,
+                CreatedAt = DateTime.UtcNow,
+            };
+            await _requestRepo.AddAsync(entity);
 
-                resultItems.Add(new ItemRequestResponseDto
+            var requestItems = dto.Items
+                .Select(dtoItem =>
                 {
-                    Id = r.Id,
-                    RequestNumber = r.RequestNumber!,
-                    Status = r.Status!,
-                    CreatedAt = r.CreatedAt,
-                    Items = items.Select(i => new RequestItemDto
+                    var entityItem = new RequestItem
                     {
-                        ItemModelId = i.ItemModelId,
-                        Quantity = i.Quantity,
-                        ItemModelName = i.ItemModel?.Name,
-                        ItemTypeId = i.ItemModel?.ItemTypeId ?? 0,
-                        ItemTypeName = i.ItemModel?.ItemType?.Name
-                    }).ToList()
-                });
+                        ItemRequestId = entity.Id,
+                        ItemModelId = dtoItem.ItemModelId,
+                        Quantity = dtoItem.Quantity,
+                        CreatedBy = userId,
+                        CreatedAt = DateTime.UtcNow
+                    };
+                    return entityItem;
+                }).ToList();
+
+            foreach (var requestItem in requestItems)
+            {
+                await _requestItemRepo.AddAsync(requestItem);
             }
 
-            return new PagedResultDto<ItemRequestResponseDto>
+            return new ItemManagementSystem.Domain.Dto.Request.ItemRequestResponseDto
             {
-                Items = resultItems,
-                TotalCount = pagedResult.TotalCount,
-                Page = pagedResult.Page,
-                PageSize = pagedResult.PageSize
+                Id = entity.Id,
+                RequestNumber = entity.RequestNumber,
+                Status = entity.Status,
+                CreatedAt = entity.CreatedAt,
+                Items = dto.Items.Select(item => new ItemManagementSystem.Domain.Dto.Request.RequestItemResponseDto
+                {
+                    Quantity = item.Quantity,
+                    ItemModelName = null,
+                    ItemTypeName = null
+                }).ToList()
             };
         }
+ 
+    public async Task<PagedResultDto<ItemManagementSystem.Domain.Dto.Request.ItemRequestResponseDto>> GetRequestsByUserPagedAsync(int userId, Domain.Dto.Request.ItemRequestFilterDto filter)
+    {
+        var filterProperties = new Dictionary<string, string?>();
+        filterProperties.Add("UserId", userId.ToString());
+        if (!string.IsNullOrEmpty(filter.Status))
+        {
+            filterProperties.Add("Status", filter.Status);
+        }
+        if (!string.IsNullOrEmpty(filter.SearchTerm))
+        {
+            filterProperties.Add("RequestNumber", filter.SearchTerm);
+        }
+
+        var pagedResult = await _requestRepo.GetPagedWithMultipleFiltersAndSortAsync(
+            filterProperties,
+            filter.SortBy,
+            filter.SortDirection,
+            filter.Page,
+            filter.PageSize);
+
+        var resultItems = new List<ItemManagementSystem.Domain.Dto.Request.ItemRequestResponseDto>();
+        foreach (var r in pagedResult.Items)
+        {
+            var items = await _requestItemRepo.FindIncludingAsync(
+                i => i.ItemRequestId == r.Id && !i.IsDeleted,
+                new System.Linq.Expressions.Expression<Func<RequestItem, object>>[] { i => i.ItemModel, i => i.ItemModel.ItemType });
+
+            resultItems.Add(new ItemManagementSystem.Domain.Dto.Request.ItemRequestResponseDto
+            {
+                Id = r.Id,
+                RequestNumber = r.RequestNumber!,
+                Status = r.Status!,
+                CreatedAt = r.CreatedAt,
+                Items = items.Select(i => new ItemManagementSystem.Domain.Dto.Request.RequestItemResponseDto
+                {
+                    Quantity = i.Quantity,
+                    ItemModelName = i.ItemModel?.Name,
+                    ItemTypeName = i.ItemModel?.ItemType?.Name
+                }).ToList()
+            });
+        }
+
+        return new PagedResultDto<ItemManagementSystem.Domain.Dto.Request.ItemRequestResponseDto>
+        {
+            Items = resultItems,
+            TotalCount = pagedResult.TotalCount,
+            Page = pagedResult.Page,
+            PageSize = pagedResult.PageSize
+        };
+    }
 
     public async Task<bool> ChangeStatusAsync(int requestId, int userId)
     {
         var entity = await _requestRepo.GetByIdAsync(requestId);
         if (entity == null || entity.IsDeleted) return false;
 
-        //check requestId's createdBy field is userid
         if (entity.CreatedBy != userId)
             throw new CustomException(AppMessages.cannotchangeOtherPersonstatus);
 

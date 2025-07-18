@@ -33,6 +33,10 @@ namespace ItemManagementSystem.Api.Controllers
             string resetLink = Url.Action("ResetPassword", "Auth", new { token = Uri.EscapeDataString(token) }, Request.Scheme)!;
 
             string emailBody = $"Click <a href='{resetLink}'>here</a> to reset your password.";
+            if (!await _authService.isEmailExist(dto.Email))
+            {
+                return new ApiResponse(false, 404, null, AppMessages.EmailNotFound);
+            }
 
             await _emailSender.SendEmailAsync(dto.Email, "Reset Password", emailBody);
 

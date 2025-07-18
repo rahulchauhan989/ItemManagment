@@ -126,7 +126,7 @@ namespace ItemManagementSystem.Api.Controllers
         {
             int userId =  UserHelper.GetUserIdFromRequest(Request, _itemTypeService);
             var result = await _purchaseRequestService.CreateAsync(dto, userId);
-            return new ApiResponse(true, 201, result, AppMessages.PurchaseRequestCreated);
+            return new ApiResponse(true, 201, null, AppMessages.PurchaseRequestCreated);
         }
 
         [HttpGet("purchase-requests/{id}")]

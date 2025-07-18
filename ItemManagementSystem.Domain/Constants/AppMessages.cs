@@ -72,5 +72,7 @@ public static class AppMessages
     public const string ItemSavedAsDraft = "Item request saved as draft successfully.";
     public const string ItemRequestStatusDraftToPending = "Item request status changed from draft to pending successfully.";
     public const string ItemRequestUpdated = "Item request updated successfully.";
+    public const string EmailNotFound = "Email not found in the system.";
+    public const string GetRequestDetails = "Fetched user item request details successfully.";
 
 }

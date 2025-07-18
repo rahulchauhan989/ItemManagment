@@ -31,7 +31,7 @@ public class UserItemRequestController : ControllerBase
     {
         int userId =  UserHelper.GetUserIdFromRequest(Request, _itemTypeService);
         var response = await _UserItemReqService.CreateRequestAsync(userId, dto);
-        return new ApiResponse(true, 201, response, AppMessages.UserCreatedItemReq);
+        return new ApiResponse(true, 201, null, AppMessages.UserCreatedItemReq);
     }
 
     [HttpPost("mine")]
@@ -77,4 +77,18 @@ public class UserItemRequestController : ControllerBase
         await _itemRequestService.EditItemRequestAsync(id, editDto, userId);
         return new ApiResponse(true, 200, null, AppMessages.ItemRequestUpdated);
     }
+
+    [HttpGet("{id}")]
+    [Authorize]
+    public async Task<ActionResult<ApiResponse>> GetUserItemRequestById(int id)
+    {
+        int userId = UserHelper.GetUserIdFromRequest(Request, _itemTypeService);
+        var result = await _UserItemReqService.GetUserItemRequestByIdAsync(id);
+        if (result == null)
+        {
+            return NotFound(new ApiResponse(false, 404, null, AppMessages.ItemRequestNotFound));
+        }
+        return new ApiResponse(true, 200, result, AppMessages.GetRequestDetails);
+    }
+
 }

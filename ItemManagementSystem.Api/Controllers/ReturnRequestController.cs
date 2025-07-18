@@ -27,7 +27,7 @@ public class ReturnRequestController : ControllerBase
     {
         int userId =  UserHelper.GetUserIdFromRequest(Request, _itemTypeService);
         var result = await _returnRequestService.CreateReturnRequestAsync(userId, dto);
-        return new ApiResponse(true, 201, result, AppMessages.ReturnRequestCreated);
+        return new ApiResponse(true, 201, null, AppMessages.ReturnRequestCreated);
     }
 
     [HttpPost("my-requests")]

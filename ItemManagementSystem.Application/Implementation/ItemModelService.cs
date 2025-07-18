@@ -55,17 +55,13 @@ namespace ItemManagementSystem.Application.Implementation
             if (exists)
                 throw new AlreadyExistsException(AppMessages.ItemModelAlreadyExists);
 
-            //if itemtype Id exist or not
-            bool isItemTypeIdExist = (await _itemModaRepo.FindAsync(
-                it => it.ItemTypeId == dto.ItemTypeId && !it.IsDeleted
-            )).Any();
-            if (!isItemTypeIdExist)
+            // Remove incorrect check for ItemModel existence with ItemTypeId
+            // Check if ItemType exists instead
+            var itemTypeCheck = await _itemTypeRepo.GetByIdAsync(dto.ItemTypeId);
+            if (itemTypeCheck == null || itemTypeCheck.IsDeleted)
                 throw new NullObjectException(AppMessages.ItemTypeNotFound);
-
-            //check wether itemtype is active or not
-            var itemType = await _itemTypeRepo.GetByIdAsync(dto.ItemTypeId);
-            if (itemType == null || itemType.IsDeleted)
-                throw new NullObjectException(AppMessages.ItemTypeNotFound);
+ 
+            // Removed duplicate check for itemType existence
 
             var entity = _mapper.Map<ItemModel>(dto);
             entity.CreatedBy = userId;
@@ -75,13 +71,13 @@ namespace ItemManagementSystem.Application.Implementation
             return _mapper.Map<ItemModelCreateDto>(created);
         }
 
-        public async Task<ItemModelDto?> GetByIdAsync(int id)
+        public async Task<ItemModelResponseDto?> GetByIdAsync(int id)
         {
             var entities = await _itemModaRepo.FindIncludingAsync(e => e.Id == id && e.IsDeleted==false, e => e.ItemType );
             var entity = entities.FirstOrDefault();
             if (entity == null)
                 throw new NullObjectException(AppMessages.ItemModelNotFound);
-            return _mapper.Map<ItemModelDto>(entity);
+            return _mapper.Map<ItemModelResponseDto>(entity);
         }
 
         public async Task<IEnumerable<ItemModelDto>> GetAllAsync()
@@ -91,7 +87,7 @@ namespace ItemManagementSystem.Application.Implementation
         }
 
 
-        public async Task<PagedResultDto<ItemModelDto>> GetPagedAsync(ItemModelFilterDto filter)
+        public async Task<PagedResultDto<ItemModelResponseDto>> GetPagedAsync(ItemModelFilterDto filter)
         {
             Expression<Func<ItemModel, bool>> filterExpression = e =>
                 (string.IsNullOrEmpty(filter.SearchTerm) || e.Name.ToLower().Contains(filter.SearchTerm.ToLower())) &&
@@ -119,9 +115,9 @@ namespace ItemManagementSystem.Application.Implementation
                 filter.PageSize,
                 e => e.ItemType);
 
-            return new PagedResultDto<ItemModelDto>
+            return new PagedResultDto<ItemModelResponseDto>
             {
-                Items = _mapper.Map<List<ItemModelDto>>(pagedResult.Items),
+                Items = _mapper.Map<List<ItemModelResponseDto>>(pagedResult.Items),
                 TotalCount = pagedResult.TotalCount,
                 Page = pagedResult.Page,
                 PageSize = pagedResult.PageSize
@@ -187,16 +183,14 @@ namespace ItemManagementSystem.Application.Implementation
 
         public async Task DeleteAsync(int id)
         {
-            // 1. Get the ItemModel entity
             var entity = await _itemModaRepo.GetByIdAsync(id);
             if (entity == null)
                 throw new NullObjectException(AppMessages.ItemModelNotFound);
 
-            // 2. Check for pending requests referencing this model
-            // If using repository pattern:
+            //  Check for pending requests referencing this model
             var requestItems = await _requestItemRepo.FindAsync(ri => ri.ItemModelId == id);
 
-            // Now check if any of their ItemRequest.Status == "pending"
+            //  check if any of their ItemRequest.Status == "pending"
             foreach (var requestItem in requestItems)
             {
                 var itemRequest = await _itemRequestRepo.GetByIdAsync(requestItem.ItemRequestId);

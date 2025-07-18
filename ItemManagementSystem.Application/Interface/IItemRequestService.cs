@@ -5,7 +5,7 @@ namespace ItemManagementSystem.Application.Interface;
 
 public interface IItemRequestService
 {
-    Task<PagedResultDto<ItemRequestDto>> GetRequestsAsync(ItemsRequestFilterDto filter);
+    Task<PagedResultDto<ItemManagementSystem.Domain.Dto.Request.ItemRequestResponseDto>> GetRequestsAsync(ItemsRequestFilterDto filter);
     Task ChangeRequestStatusAsync(int id, string status, string? comment, int userId);
     Task EditItemRequestAsync(int requestId, ItemRequestEditDto editDto, int userId);
 }
